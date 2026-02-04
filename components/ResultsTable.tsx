@@ -226,14 +226,14 @@ export function ResultsTable({ data }: ResultsTableProps) {
   return (
     <div className="space-y-4">
       {/* Filter dropdowns */}
-      <div className="flex flex-wrap gap-3 items-end">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap gap-2 md:gap-3 items-end">
         <div className="flex flex-col gap-1">
           <label className="text-xs text-muted-foreground">PLU</label>
           <Select
             value={getFilterValue('PLU') || '__all__'}
             onValueChange={(value) => setFilterValue('PLU', value)}
           >
-            <SelectTrigger className="h-8 w-28">
+            <SelectTrigger className="h-8 w-full md:w-28">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
@@ -253,7 +253,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
             value={getFilterValue('Description') || '__all__'}
             onValueChange={(value) => setFilterValue('Description', value)}
           >
-            <SelectTrigger className="h-8 w-48">
+            <SelectTrigger className="h-8 w-full md:w-48">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
@@ -273,7 +273,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
             value={getFilterValue('SAP Status') || '__all__'}
             onValueChange={(value) => setFilterValue('SAP Status', value)}
           >
-            <SelectTrigger className="h-8 w-36">
+            <SelectTrigger className="h-8 w-full md:w-36">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
@@ -293,7 +293,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
             value={getFilterValue('Published') || '__all__'}
             onValueChange={(value) => setFilterValue('Published', value)}
           >
-            <SelectTrigger className="h-8 w-24">
+            <SelectTrigger className="h-8 w-full md:w-24">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -313,7 +313,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
             value={getFilterValue('Inventory %') || '__all__'}
             onValueChange={(value) => setFilterValue('Inventory %', value)}
           >
-            <SelectTrigger className="h-8 w-28">
+            <SelectTrigger className="h-8 w-full md:w-28">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
@@ -333,7 +333,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
             value={getFilterValue('Recommendation') || '__all__'}
             onValueChange={(value) => setFilterValue('Recommendation', value)}
           >
-            <SelectTrigger className="h-8 w-32">
+            <SelectTrigger className="h-8 w-full md:w-32">
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -352,10 +352,10 @@ export function ResultsTable({ data }: ResultsTableProps) {
             variant="ghost"
             size="sm"
             onClick={() => setColumnFilters([])}
-            className="h-8"
+            className="h-8 col-span-2 sm:col-span-1"
           >
             <X className="h-4 w-4 mr-1" />
-            Clear filters
+            Clear
           </Button>
         )}
       </div>

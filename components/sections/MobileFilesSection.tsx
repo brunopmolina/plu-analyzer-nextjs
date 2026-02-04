@@ -139,22 +139,22 @@ export function MobileFilesSection() {
   return (
     <Card className="lg:hidden">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2 text-base shrink-0">
             <FolderOpen className="h-4 w-4" />
             Data Files
           </CardTitle>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-end gap-1.5">
             {state.plantStatus.loaded && (
               <Button variant="destructive" size="sm" onClick={clearStoredPlantData} className="h-7 px-2 text-xs">
-                <Trash2 className="h-3 w-3 mr-1" />
-                Clear Plant Data
+                <Trash2 className="h-3 w-3 min-[400px]:mr-1" />
+                <span className="hidden min-[400px]:inline">Plant</span>
               </Button>
             )}
             {hasAnySessionData && (
               <Button variant="destructive" size="sm" onClick={clearSession} className="h-7 px-2 text-xs">
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Clear Session Data
+                <RefreshCw className="h-3 w-3 min-[400px]:mr-1" />
+                <span className="hidden min-[400px]:inline">Session</span>
               </Button>
             )}
           </div>
@@ -187,7 +187,7 @@ export function MobileFilesSection() {
         {/* Session Files */}
         <div>
           <p className="text-xs text-muted-foreground mb-1.5">Session Files</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-2">
             <FileUploadButton
               label="Inventory in CT.csv"
               status={state.inventoryStatus}

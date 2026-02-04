@@ -21,7 +21,7 @@ export function HelpDialog() {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-red-500 hover:text-red-600 hover:bg-red-500/10">
           <HelpCircle className="h-4 w-4" />
-          <span>How it works</span>
+          <span className="hidden sm:inline">How it works</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">

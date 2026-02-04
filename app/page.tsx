@@ -14,12 +14,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b">
-        <div className="container mx-auto px-4 py-3">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 min-w-0">
               <Package className="h-6 w-6 text-primary shrink-0" />
               <div className="min-w-0">
-                <h1 className="text-xl font-bold">Website Assortment Audit Tool</h1>
+                <h1 className="text-base sm:text-xl font-bold leading-tight">Website Assortment Audit Tool</h1>
                 <p className="text-sm text-muted-foreground hidden sm:block">
                   See items that should be Published or Unpublished based on pre-set Business criteria
                 </p>
@@ -34,7 +34,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 flex-1">
+      <main className="w-full max-w-screen-2xl mx-auto px-4 py-4 flex-1">
         <div className="space-y-4">
           {/* Mobile: Combined files card */}
           <MobileFilesSection />
@@ -52,7 +52,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t">
-        <div className="container mx-auto px-4 py-2 text-center text-xs text-muted-foreground">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 py-2 text-center text-xs text-muted-foreground">
           Wild Fork Foods
         </div>
       </footer>
