@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Package, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { login } from './actions';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,12 +21,16 @@ export default function LoginPage() {
     try {
       const formData = new FormData(e.currentTarget);
       const result = await login(formData);
-      if (result?.error) {
+
+      if (result.error) {
         setError(result.error);
+        setIsLoading(false);
+      } else if (result.success) {
+        router.push('/');
+        router.refresh();
       }
     } catch {
       setError('An unexpected error occurred');
-    } finally {
       setIsLoading(false);
     }
   }

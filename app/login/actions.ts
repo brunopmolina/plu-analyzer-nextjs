@@ -1,7 +1,6 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { createSession } from '@/lib/auth';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
@@ -15,7 +14,7 @@ function getEnvVar(name: string): string | undefined {
   }
 }
 
-export async function login(formData: FormData): Promise<{ error: string } | void> {
+export async function login(formData: FormData): Promise<{ error?: string; success?: boolean }> {
   const password = formData.get('password') as string;
 
   const expectedPassword = getEnvVar('AUTH_PASSWORD');
@@ -42,11 +41,11 @@ export async function login(formData: FormData): Promise<{ error: string } | voi
     path: '/',
   });
 
-  redirect('/');
+  return { success: true };
 }
 
-export async function logout(): Promise<void> {
+export async function logout(): Promise<{ success: boolean }> {
   const cookieStore = await cookies();
   cookieStore.delete('auth_session');
-  redirect('/login');
+  return { success: true };
 }
