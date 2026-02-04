@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Package, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { login } from './actions';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,18 +19,26 @@ export default function LoginPage() {
 
     try {
       const formData = new FormData(e.currentTarget);
-      const result = await login(formData);
+      const password = formData.get('password') as string;
 
-      if (result.error) {
-        setError(result.error);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Login failed');
         setIsLoading(false);
-      } else if (result.success) {
+      } else {
         router.push('/');
         router.refresh();
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(`Client error: ${message}`);
+      setError(`Network error: ${message}`);
       setIsLoading(false);
     }
   }
