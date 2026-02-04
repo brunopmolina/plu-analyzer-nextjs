@@ -119,7 +119,9 @@ export function analyzePLUs(
     const sapStatus = productRow.STATUS_IN_SAP ?? '';
 
     // Get description from SKU_DESCRIPTION field
-    const description = productRow.SKU_DESCRIPTION ?? '';
+    // Remove the first 7 characters to strip the PLU and dash (e.g., "1234 - Product Name" -> "Product Name")
+    const fullDesc = productRow.SKU_DESCRIPTION ?? '';
+    const description = fullDesc.length > 7 ? fullDesc.substring(7).trim() : fullDesc;
 
     // Get published status
     const isPublished = statusMap.get(plu) ?? false;
