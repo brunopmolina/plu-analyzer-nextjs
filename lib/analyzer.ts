@@ -118,17 +118,8 @@ export function analyzePLUs(
 
     const sapStatus = productRow.STATUS_IN_SAP ?? '';
 
-    // Get description from "Product Description" field (preferred) or fallback to other variants
-    // Remove the first 7 characters to strip the PLU and dash (e.g., "1234 - Product Name" -> "Product Name")
-    let description = '';
-    if (productRow['Product Description'] !== undefined && productRow['Product Description'] !== null) {
-      const fullDesc = String(productRow['Product Description']);
-      description = fullDesc.length > 7 ? fullDesc.substring(7).trim() : fullDesc;
-    } else if (productRow.Description !== undefined && productRow.Description !== null) {
-      description = String(productRow.Description);
-    } else if (productRow.DESCRIPTION !== undefined && productRow.DESCRIPTION !== null) {
-      description = String(productRow.DESCRIPTION);
-    }
+    // Get description from SKU_DESCRIPTION field
+    const description = productRow.SKU_DESCRIPTION ?? '';
 
     // Get published status
     const isPublished = statusMap.get(plu) ?? false;

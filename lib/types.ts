@@ -22,9 +22,7 @@ export interface StatusRecord {
 export interface ProductRecord {
   SKU_NUMBER: string;
   STATUS_IN_SAP: string;
-  'Product Description'?: string;
-  Description?: string;
-  DESCRIPTION?: string;
+  SKU_DESCRIPTION?: string;
 }
 
 export interface AnalysisResult {
