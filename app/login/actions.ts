@@ -15,33 +15,38 @@ function getEnvVar(name: string): string | undefined {
 }
 
 export async function login(formData: FormData): Promise<{ error?: string; success?: boolean }> {
-  const password = formData.get('password') as string;
+  try {
+    const password = formData.get('password') as string;
 
-  const expectedPassword = getEnvVar('AUTH_PASSWORD');
-  const secret = getEnvVar('AUTH_SECRET');
+    const expectedPassword = getEnvVar('AUTH_PASSWORD');
+    const secret = getEnvVar('AUTH_SECRET');
 
-  if (!expectedPassword || !secret) {
-    return { error: 'Server configuration error - check environment variables' };
+    if (!expectedPassword || !secret) {
+      return { error: `Config error: password=${!!expectedPassword}, secret=${!!secret}` };
+    }
+
+    if (password !== expectedPassword) {
+      return { error: 'Invalid password' };
+    }
+
+    // Create session token (7 day expiry)
+    const sessionToken = await createSession(secret, 7);
+
+    // Set HTTP-only cookie
+    const cookieStore = await cookies();
+    cookieStore.set('auth_session', sessionToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+      path: '/',
+    });
+
+    return { success: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return { error: `Server error: ${message}` };
   }
-
-  if (password !== expectedPassword) {
-    return { error: 'Invalid password' };
-  }
-
-  // Create session token (7 day expiry)
-  const sessionToken = await createSession(secret, 7);
-
-  // Set HTTP-only cookie
-  const cookieStore = await cookies();
-  cookieStore.set('auth_session', sessionToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-    path: '/',
-  });
-
-  return { success: true };
 }
 
 export async function logout(): Promise<{ success: boolean }> {
