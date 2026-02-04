@@ -58,6 +58,15 @@ Only SKUs that are exactly 4 digits are analyzed (valid PLU format).
 - **Unpublish**: Product IS published + status IS Inactive/Discontinued + ≥50% out of stock
 - **No Action**: All other cases
 
+### Audit Feature
+
+The **Audit** button provides a separate analysis to identify products that are published but should not be available for e-commerce:
+
+- **Criteria**: Product IS published + `AVAILABLE_IN_CHANNEL` is "Store"
+- **Recommendation**: Always "Unpublish"
+
+This helps identify items that are incorrectly published online when they should only be available in physical stores.
+
 ## Getting Started
 
 ```bash

@@ -132,3 +132,13 @@ export function exportFilteredOut(results: FilteredOutResult[]): void {
   const filename = `plu_ecom_ineligible_${timestamp}.csv`;
   downloadCSV(csv, filename);
 }
+
+/**
+ * Export published but ineligible results to CSV file (audit export).
+ */
+export function exportPublishedIneligible(results: FilteredOutResult[]): void {
+  const csv = filteredOutToCSV(results);
+  const timestamp = new Date().toISOString().slice(0, 10);
+  const filename = `plu_audit_published_ineligible_${timestamp}.csv`;
+  downloadCSV(csv, filename);
+}
