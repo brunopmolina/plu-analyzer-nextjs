@@ -11,7 +11,7 @@ import { Trash2, Store } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function PlantDataSection() {
-  const { state, setPlantData, clearStoredPlantData, setFileError } = useAnalyzer();
+  const { state, setPlantData, clearStoredPlantData, setFileError, dismissFileStatus } = useAnalyzer();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFileSelect = async (file: File) => {
@@ -77,6 +77,7 @@ export function PlantDataSection() {
           label="v_dim_plant.csv"
           status={state.plantStatus}
           onFileSelect={handleFileSelect}
+          onDismissStatus={() => dismissFileStatus('plant')}
           isLoading={isLoading}
           helperText="Download from Snowflake"
         />

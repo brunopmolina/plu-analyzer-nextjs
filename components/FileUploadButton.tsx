@@ -2,13 +2,14 @@
 
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, Check, AlertCircle, Loader2, X } from 'lucide-react';
 import type { FileUploadStatus } from '@/lib/types';
 
 interface FileUploadButtonProps {
   label: string;
   status: FileUploadStatus;
   onFileSelect: (file: File) => void;
+  onDismissStatus?: () => void;
   accept?: string;
   disabled?: boolean;
   isLoading?: boolean;
@@ -19,6 +20,7 @@ export function FileUploadButton({
   label,
   status,
   onFileSelect,
+  onDismissStatus,
   accept = '.csv',
   disabled = false,
   isLoading = false,
@@ -76,7 +78,7 @@ export function FileUploadButton({
       </Button>
       {showStatusText && (
         <div
-          className={`text-xs truncate ${
+          className={`text-xs flex items-center gap-1 ${
             status.error
               ? 'text-red-500'
               : status.loaded
@@ -84,14 +86,26 @@ export function FileUploadButton({
               : 'text-muted-foreground'
           }`}
         >
-          {isLoading ? (
-            'Loading...'
-          ) : status.error ? (
-            status.error
-          ) : status.loaded ? (
-            <span title={status.fileName}>{status.rowCount.toLocaleString()} rows</span>
-          ) : (
-            helperText
+          <span className="truncate flex-1">
+            {isLoading ? (
+              'Loading...'
+            ) : status.error ? (
+              status.error
+            ) : status.loaded ? (
+              <span title={status.fileName}>{status.rowCount.toLocaleString()} rows</span>
+            ) : (
+              helperText
+            )}
+          </span>
+          {!isLoading && (status.error || status.loaded) && onDismissStatus && (
+            <button
+              type="button"
+              onClick={onDismissStatus}
+              className="p-0.5 hover:bg-muted rounded shrink-0"
+              aria-label="Dismiss"
+            >
+              <X className="h-3 w-3" />
+            </button>
           )}
         </div>
       )}

@@ -92,6 +92,7 @@ export type AnalyzerAction =
   | { type: 'SET_STATUS_DATA'; payload: { data: StatusRecord[]; fileName: string } }
   | { type: 'SET_PRODUCT_DATA'; payload: { data: ProductRecord[]; fileName: string } }
   | { type: 'SET_FILE_ERROR'; payload: { fileType: 'plant' | 'inventory' | 'status' | 'product'; error: string } }
+  | { type: 'DISMISS_FILE_STATUS'; payload: { fileType: 'plant' | 'inventory' | 'status' | 'product' } }
   | { type: 'RUN_ANALYSIS' }
   | { type: 'ANALYSIS_COMPLETE'; payload: { results: AnalysisResult[]; summary: AnalysisSummary } }
   | { type: 'CLEAR_SESSION' }

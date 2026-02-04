@@ -17,6 +17,7 @@ export function SessionFilesSection() {
     setStatusData,
     setProductData,
     setFileError,
+    dismissFileStatus,
     clearSession,
   } = useAnalyzer();
 
@@ -135,6 +136,7 @@ export function SessionFilesSection() {
             label="Inventory in CT.csv"
             status={state.inventoryStatus}
             onFileSelect={handleInventorySelect}
+            onDismissStatus={() => dismissFileStatus('inventory')}
             isLoading={loadingFile === 'inventory'}
             helperText="Download from CT"
           />
@@ -142,6 +144,7 @@ export function SessionFilesSection() {
             label="Status in CT.csv"
             status={state.statusStatus}
             onFileSelect={handleStatusSelect}
+            onDismissStatus={() => dismissFileStatus('status')}
             isLoading={loadingFile === 'status'}
             helperText="Download from CT"
           />
@@ -149,6 +152,7 @@ export function SessionFilesSection() {
             label="v_dim_product.csv"
             status={state.productStatus}
             onFileSelect={handleProductSelect}
+            onDismissStatus={() => dismissFileStatus('product')}
             isLoading={loadingFile === 'product'}
             helperText="Download from Snowflake"
           />

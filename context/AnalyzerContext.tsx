@@ -105,6 +105,17 @@ function analyzerReducer(state: AnalyzerState, action: AnalyzerAction): Analyzer
       };
     }
 
+    case 'DISMISS_FILE_STATUS': {
+      const statusKey = `${action.payload.fileType}Status` as keyof AnalyzerState;
+      return {
+        ...state,
+        [statusKey]: {
+          loaded: false,
+          rowCount: 0,
+        },
+      };
+    }
+
     case 'RUN_ANALYSIS':
       return {
         ...state,
@@ -166,6 +177,7 @@ interface AnalyzerContextValue {
   setStatusData: (data: StatusRecord[], fileName: string) => void;
   setProductData: (data: ProductRecord[], fileName: string) => void;
   setFileError: (fileType: 'plant' | 'inventory' | 'status' | 'product', error: string) => void;
+  dismissFileStatus: (fileType: 'plant' | 'inventory' | 'status' | 'product') => void;
   runAnalysis: () => void;
   clearSession: () => void;
   setFilter: (filter: RecommendationFilter) => void;
@@ -228,6 +240,10 @@ export function AnalyzerProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_FILE_ERROR', payload: { fileType, error } });
   }, []);
 
+  const dismissFileStatus = useCallback((fileType: 'plant' | 'inventory' | 'status' | 'product') => {
+    dispatch({ type: 'DISMISS_FILE_STATUS', payload: { fileType } });
+  }, []);
+
   const canRunAnalysis = Boolean(
     state.plantData &&
     state.activeStores.length > 0 &&
@@ -279,6 +295,7 @@ export function AnalyzerProvider({ children }: { children: React.ReactNode }) {
     setStatusData,
     setProductData,
     setFileError,
+    dismissFileStatus,
     runAnalysis,
     clearSession,
     setFilter,
