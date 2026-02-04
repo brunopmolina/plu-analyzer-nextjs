@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Check, AlertCircle, Loader2, X } from 'lucide-react';
 import type { FileUploadStatus } from '@/lib/types';
@@ -27,6 +27,7 @@ export function FileUploadButton({
   helperText,
 }: FileUploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleClick = () => {
     inputRef.current?.click();
@@ -39,6 +40,41 @@ export function FileUploadButton({
     }
     // Reset input so the same file can be selected again
     e.target.value = '';
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!disabled && !isLoading) {
+      setIsDragOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    if (disabled || isLoading) return;
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      // Validate file extension if accept prop is provided
+      if (accept) {
+        const acceptedExtensions = accept.split(',').map(ext => ext.trim().toLowerCase());
+        const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+        if (!acceptedExtensions.includes(fileExtension)) {
+          return; // Silently reject invalid file types
+        }
+      }
+      onFileSelect(file);
+    }
   };
 
   const getStatusIcon = () => {
@@ -57,7 +93,14 @@ export function FileUploadButton({
   const showStatusText = isLoading || status.error || status.loaded || helperText;
 
   return (
-    <div className={showStatusText ? 'space-y-0.5' : ''}>
+    <div
+      className={`${showStatusText ? 'space-y-0.5' : ''} ${
+        isDragOver ? 'ring-2 ring-primary ring-offset-1 rounded-md' : ''
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <input
         ref={inputRef}
         type="file"
@@ -67,14 +110,16 @@ export function FileUploadButton({
       />
       <Button
         type="button"
-        variant={status.loaded ? 'secondary' : 'default'}
+        variant={isDragOver ? 'outline' : status.loaded ? 'secondary' : 'default'}
         onClick={handleClick}
         disabled={disabled || isLoading}
         size="sm"
-        className="w-full justify-start h-8 text-xs"
+        className={`w-full justify-start h-8 text-xs transition-colors ${
+          isDragOver ? 'border-primary bg-primary/10 border-dashed' : ''
+        }`}
       >
         {getStatusIcon()}
-        <span className="ml-1.5 truncate">{label}</span>
+        <span className="ml-1.5 truncate">{isDragOver ? 'Drop file here' : label}</span>
       </Button>
       {showStatusText && (
         <div
