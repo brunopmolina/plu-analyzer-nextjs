@@ -1,10 +1,11 @@
 // Core analysis logic - ported from Python analyzer.py
 
 import { PUBLISH_THRESHOLD, UNPUBLISH_THRESHOLD, INACTIVE_STATUSES } from './constants';
-import type { InventoryRecord, StatusRecord, ProductRecord, AnalysisResult, AnalysisSummary } from './types';
+import type { InventoryRecord, StatusRecord, ProductRecord, AnalysisResult, AnalysisSummary, FilteredOutResult } from './types';
 
 interface AnalysisOutput {
   results: AnalysisResult[];
+  filteredOutResults: FilteredOutResult[];
   summary: AnalysisSummary;
 }
 
@@ -58,6 +59,7 @@ export function analyzePLUs(
   if (totalActiveStores === 0) {
     return {
       results: [],
+      filteredOutResults: [],
       summary: {
         total_plus: 0,
         to_publish: 0,
@@ -101,6 +103,7 @@ export function analyzePLUs(
   // Get unique PLUs from product master
   const processedPLUs = new Set<string>();
   const results: AnalysisResult[] = [];
+  const filteredOutResults: FilteredOutResult[] = [];
 
   for (const productRow of productData) {
     const plu = String(productRow.SKU_NUMBER);
@@ -117,6 +120,7 @@ export function analyzePLUs(
     processedPLUs.add(plu);
 
     const sapStatus = productRow.STATUS_IN_SAP ?? '';
+    const channel = productRow.AVAILABLE_IN_CHANNEL ?? '';
 
     // Get description from SKU_DESCRIPTION field
     // Remove the first 7 characters to strip the PLU and dash (e.g., "1234 - Product Name" -> "Product Name")
@@ -129,6 +133,26 @@ export function analyzePLUs(
     // Calculate inventory coverage
     const storesWithInventory = inventoryByPLU.get(plu)?.size ?? 0;
     const inventoryPct = (storesWithInventory / totalActiveStores) * 100;
+
+    // Check if filtered out by channel
+    if (channel !== 'Both' && channel !== 'Ecom') {
+      // Calculate what the recommendation would have been
+      const wouldRecommend = determineRecommendation(isPublished, sapStatus, inventoryPct);
+
+      // Only track if it would have required action
+      if (wouldRecommend === 'Publish' || wouldRecommend === 'Unpublish') {
+        filteredOutResults.push({
+          PLU: plu,
+          Description: description,
+          'SAP Status': sapStatus,
+          Published: isPublished,
+          'Inventory %': Math.round(inventoryPct * 10) / 10,
+          'Available In Channel': channel,
+          'Would Recommend': wouldRecommend,
+        });
+      }
+      continue;
+    }
 
     // Determine recommendation
     const recommendation = determineRecommendation(isPublished, sapStatus, inventoryPct);
@@ -154,5 +178,5 @@ export function analyzePLUs(
     active_stores: totalActiveStores,
   };
 
-  return { results, summary };
+  return { results, filteredOutResults, summary };
 }

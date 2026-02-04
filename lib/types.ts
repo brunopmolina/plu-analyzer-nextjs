@@ -23,6 +23,7 @@ export interface ProductRecord {
   SKU_NUMBER: string;
   STATUS_IN_SAP: string;
   SKU_DESCRIPTION?: string;
+  AVAILABLE_IN_CHANNEL?: string;
 }
 
 export interface AnalysisResult {
@@ -34,6 +35,16 @@ export interface AnalysisResult {
   'Stores w/ Inventory': number;
   'Total Active Stores': number;
   Recommendation: 'Publish' | 'Unpublish' | 'No Action';
+}
+
+export interface FilteredOutResult {
+  PLU: string;
+  Description: string;
+  'SAP Status': string;
+  Published: boolean;
+  'Inventory %': number;
+  'Available In Channel': string;
+  'Would Recommend': 'Publish' | 'Unpublish';
 }
 
 export interface AnalysisSummary {
@@ -79,6 +90,7 @@ export interface AnalyzerState {
   // Analysis
   isAnalyzing: boolean;
   results: AnalysisResult[] | null;
+  filteredOutResults: FilteredOutResult[] | null;
   summary: AnalysisSummary | null;
 
   // Filter
@@ -94,7 +106,7 @@ export type AnalyzerAction =
   | { type: 'SET_FILE_ERROR'; payload: { fileType: 'plant' | 'inventory' | 'status' | 'product'; error: string } }
   | { type: 'DISMISS_FILE_STATUS'; payload: { fileType: 'plant' | 'inventory' | 'status' | 'product' } }
   | { type: 'RUN_ANALYSIS' }
-  | { type: 'ANALYSIS_COMPLETE'; payload: { results: AnalysisResult[]; summary: AnalysisSummary } }
+  | { type: 'ANALYSIS_COMPLETE'; payload: { results: AnalysisResult[]; filteredOutResults: FilteredOutResult[]; summary: AnalysisSummary } }
   | { type: 'CLEAR_SESSION' }
   | { type: 'SET_FILTER'; payload: RecommendationFilter }
   | { type: 'LOAD_FROM_STORAGE'; payload: { plantData: PlantRecord[]; metadata: PlantMetadata; activeStores: string[] } };

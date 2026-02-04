@@ -22,6 +22,7 @@ const initialState: AnalyzerState = {
 
   isAnalyzing: false,
   results: null,
+  filteredOutResults: null,
   summary: null,
 
   filter: 'Action',
@@ -64,6 +65,7 @@ function analyzerReducer(state: AnalyzerState, action: AnalyzerAction): Analyzer
         },
         // Clear results when new data is loaded
         results: null,
+        filteredOutResults: null,
         summary: null,
       };
 
@@ -77,6 +79,7 @@ function analyzerReducer(state: AnalyzerState, action: AnalyzerAction): Analyzer
           fileName: action.payload.fileName,
         },
         results: null,
+        filteredOutResults: null,
         summary: null,
       };
 
@@ -90,6 +93,7 @@ function analyzerReducer(state: AnalyzerState, action: AnalyzerAction): Analyzer
           fileName: action.payload.fileName,
         },
         results: null,
+        filteredOutResults: null,
         summary: null,
       };
 
@@ -127,6 +131,7 @@ function analyzerReducer(state: AnalyzerState, action: AnalyzerAction): Analyzer
         ...state,
         isAnalyzing: false,
         results: action.payload.results,
+        filteredOutResults: action.payload.filteredOutResults,
         summary: action.payload.summary,
       };
 
@@ -140,6 +145,7 @@ function analyzerReducer(state: AnalyzerState, action: AnalyzerAction): Analyzer
         statusStatus: { loaded: false, rowCount: 0 },
         productStatus: { loaded: false, rowCount: 0 },
         results: null,
+        filteredOutResults: null,
         summary: null,
         filter: 'Action',
       };
@@ -259,13 +265,13 @@ export function AnalyzerProvider({ children }: { children: React.ReactNode }) {
 
     // Run analysis (synchronous but we use setTimeout to allow UI to update)
     setTimeout(() => {
-      const { results, summary } = analyzePLUs(
+      const { results, filteredOutResults, summary } = analyzePLUs(
         state.inventoryData!,
         state.statusData!,
         state.productData!,
         state.activeStores
       );
-      dispatch({ type: 'ANALYSIS_COMPLETE', payload: { results, summary } });
+      dispatch({ type: 'ANALYSIS_COMPLETE', payload: { results, filteredOutResults, summary } });
     }, 0);
   }, [canRunAnalysis, state.inventoryData, state.statusData, state.productData, state.activeStores]);
 

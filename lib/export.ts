@@ -1,6 +1,6 @@
 // CSV export utilities
 
-import type { AnalysisResult } from './types';
+import type { AnalysisResult, FilteredOutResult } from './types';
 
 /**
  * Escape a value for CSV output.
@@ -81,5 +81,54 @@ export function exportResults(results: AnalysisResult[], filter?: string): void 
   const timestamp = new Date().toISOString().slice(0, 10);
   const filterSuffix = filter && filter !== 'All' ? `_${filter.toLowerCase()}` : '';
   const filename = `plu_analysis_${timestamp}${filterSuffix}.csv`;
+  downloadCSV(csv, filename);
+}
+
+/**
+ * Convert filtered out results to CSV string.
+ */
+export function filteredOutToCSV(results: FilteredOutResult[]): string {
+  if (results.length === 0) {
+    return '';
+  }
+
+  // Define columns in desired order
+  const columns: (keyof FilteredOutResult)[] = [
+    'PLU',
+    'Description',
+    'SAP Status',
+    'Published',
+    'Inventory %',
+    'Available In Channel',
+    'Would Recommend',
+  ];
+
+  // Header row
+  const header = columns.map(escapeCSVValue).join(',');
+
+  // Data rows
+  const rows = results.map((result) =>
+    columns
+      .map((col) => {
+        const value = result[col];
+        // Convert boolean Published to Yes/No for readability
+        if (col === 'Published') {
+          return escapeCSVValue(value ? 'Yes' : 'No');
+        }
+        return escapeCSVValue(value);
+      })
+      .join(',')
+  );
+
+  return [header, ...rows].join('\n');
+}
+
+/**
+ * Export filtered out results to CSV file.
+ */
+export function exportFilteredOut(results: FilteredOutResult[]): void {
+  const csv = filteredOutToCSV(results);
+  const timestamp = new Date().toISOString().slice(0, 10);
+  const filename = `plu_ecom_ineligible_${timestamp}.csv`;
   downloadCSV(csv, filename);
 }
