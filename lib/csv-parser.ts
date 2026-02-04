@@ -11,30 +11,40 @@ interface ParseResult<T> {
 }
 
 /**
- * Column aliases: maps alternative column names to the canonical name.
+ * Column aliases per file type: maps alternative column names to the canonical name.
  * Keys are lowercase for case-insensitive matching.
  */
-const COLUMN_ALIASES: Record<string, string> = {
-  'supplychannel': 'supplyChannel.key',
+const COLUMN_ALIASES: Record<string, Record<string, string>> = {
+  inventory: {
+    'supplychannel': 'supplyChannel.key',
+  },
+  status: {
+    'sku': 'key',
+  },
 };
 
 /**
- * Finds the canonical column name, checking aliases if needed.
+ * Finds the canonical column name, checking aliases for the specific file type.
  * Returns the canonical name if found, otherwise returns the original.
  */
-function getCanonicalColumnName(header: string): string {
+function getCanonicalColumnName(header: string, fileType?: string): string {
   const lowerHeader = header.toLowerCase();
-  return COLUMN_ALIASES[lowerHeader] || header;
+  const aliases = fileType ? COLUMN_ALIASES[fileType] : {};
+  return aliases?.[lowerHeader] || header;
 }
 
 /**
  * Case-insensitive column validation with alias support.
  * Returns missing columns (using expected case for error messages).
  */
-function validateColumns(headers: string[], requiredColumns: readonly string[]): string[] {
+function validateColumns(
+  headers: string[],
+  requiredColumns: readonly string[],
+  fileType?: string
+): string[] {
   // Build a set of normalized header names (lowercase, with aliases resolved)
   const normalizedHeaders = new Set(
-    headers.map((h) => getCanonicalColumnName(h).toLowerCase())
+    headers.map((h) => getCanonicalColumnName(h, fileType).toLowerCase())
   );
 
   const missing: string[] = [];
@@ -52,14 +62,15 @@ function validateColumns(headers: string[], requiredColumns: readonly string[]):
  */
 function createColumnMapping(
   headers: string[],
-  requiredColumns: readonly string[]
+  requiredColumns: readonly string[],
+  fileType?: string
 ): Map<string, string> {
   const mapping = new Map<string, string>();
 
   for (const required of requiredColumns) {
     // Find the actual header that matches (case-insensitive, with alias support)
     const actualHeader = headers.find((h) => {
-      const canonical = getCanonicalColumnName(h);
+      const canonical = getCanonicalColumnName(h, fileType);
       return canonical.toLowerCase() === required.toLowerCase();
     });
     if (actualHeader) {
@@ -88,7 +99,11 @@ function normalizeRowKeys<T>(
   return normalized as T;
 }
 
-async function parseCSV<T>(file: File, requiredColumns: readonly string[]): Promise<ParseResult<T>> {
+async function parseCSV<T>(
+  file: File,
+  requiredColumns: readonly string[],
+  fileType?: string
+): Promise<ParseResult<T>> {
   return new Promise((resolve) => {
     Papa.parse<Record<string, unknown>>(file, {
       header: true,
@@ -113,7 +128,7 @@ async function parseCSV<T>(file: File, requiredColumns: readonly string[]): Prom
         }
 
         const headers = results.meta.fields || [];
-        const missingColumns = validateColumns(headers, requiredColumns);
+        const missingColumns = validateColumns(headers, requiredColumns, fileType);
 
         if (missingColumns.length > 0) {
           resolve({
@@ -125,7 +140,7 @@ async function parseCSV<T>(file: File, requiredColumns: readonly string[]): Prom
         }
 
         // Create mapping from actual headers to expected column names
-        const columnMapping = createColumnMapping(headers, requiredColumns);
+        const columnMapping = createColumnMapping(headers, requiredColumns, fileType);
 
         // Normalize all row keys to match expected column names
         const normalizedData = results.data.map((row) =>
@@ -150,11 +165,11 @@ async function parseCSV<T>(file: File, requiredColumns: readonly string[]): Prom
 }
 
 export async function parsePlantCSV(file: File): Promise<ParseResult<PlantRecord>> {
-  return parseCSV<PlantRecord>(file, REQUIRED_COLUMNS.plant);
+  return parseCSV<PlantRecord>(file, REQUIRED_COLUMNS.plant, 'plant');
 }
 
 export async function parseInventoryCSV(file: File): Promise<ParseResult<InventoryRecord>> {
-  const result = await parseCSV<InventoryRecord>(file, REQUIRED_COLUMNS.inventory);
+  const result = await parseCSV<InventoryRecord>(file, REQUIRED_COLUMNS.inventory, 'inventory');
 
   // Convert availableQuantity to number
   if (result.data) {
@@ -168,7 +183,7 @@ export async function parseInventoryCSV(file: File): Promise<ParseResult<Invento
 }
 
 export async function parseStatusCSV(file: File): Promise<ParseResult<StatusRecord>> {
-  const result = await parseCSV<StatusRecord>(file, REQUIRED_COLUMNS.status);
+  const result = await parseCSV<StatusRecord>(file, REQUIRED_COLUMNS.status, 'status');
 
   // Normalize published field to boolean
   if (result.data) {
@@ -182,7 +197,7 @@ export async function parseStatusCSV(file: File): Promise<ParseResult<StatusReco
 }
 
 export async function parseProductCSV(file: File): Promise<ParseResult<ProductRecord>> {
-  return parseCSV<ProductRecord>(file, REQUIRED_COLUMNS.product);
+  return parseCSV<ProductRecord>(file, REQUIRED_COLUMNS.product, 'product');
 }
 
 function normalizeBoolean(value: unknown): boolean {
