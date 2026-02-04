@@ -29,8 +29,9 @@ export default function LoginPage() {
         router.push('/');
         router.refresh();
       }
-    } catch {
-      setError('An unexpected error occurred');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(`Client error: ${message}`);
       setIsLoading(false);
     }
   }
