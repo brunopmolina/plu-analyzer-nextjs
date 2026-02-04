@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { validateSession } from '@/lib/auth';
+import { getRequestContext } from '@cloudflare/next-on-pages';
 
 const PUBLIC_PATHS = ['/login'];
 const STATIC_EXTENSIONS = ['.ico', '.png', '.jpg', '.jpeg', '.svg', '.css', '.js', '.woff', '.woff2'];
+
+function getEnvVar(name: string): string | undefined {
+  try {
+    const ctx = getRequestContext();
+    return (ctx.env as Record<string, string>)[name] ?? process.env[name];
+  } catch {
+    return process.env[name];
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -25,7 +35,7 @@ export async function middleware(request: NextRequest) {
 
   // Check for auth cookie
   const sessionCookie = request.cookies.get('auth_session')?.value;
-  const secret = process.env.AUTH_SECRET;
+  const secret = getEnvVar('AUTH_SECRET');
 
   if (!secret) {
     console.error('AUTH_SECRET environment variable is not set');
