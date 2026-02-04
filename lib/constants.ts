@@ -17,7 +17,7 @@ export const REQUIRED_COLUMNS = {
   plant: ['SITE_NUMBER', 'REGION', 'ORGANIZATION_NUMBER', 'OPEN_DATE', 'CLOSE_DATE'],
   inventory: ['sku', 'availableQuantity', 'supplyChannel.key'],
   status: ['key', 'published'],
-  product: ['PLU', 'SAP Status'],
+  product: ['SKU_NUMBER', 'STATUS_IN_SAP'],
 } as const;
 
 // localStorage keys

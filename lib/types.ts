@@ -20,8 +20,8 @@ export interface StatusRecord {
 }
 
 export interface ProductRecord {
-  PLU: string;
-  'SAP Status': string;
+  SKU_NUMBER: string;
+  STATUS_IN_SAP: string;
   'Product Description'?: string;
   Description?: string;
   DESCRIPTION?: string;

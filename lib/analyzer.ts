@@ -103,7 +103,7 @@ export function analyzePLUs(
   const results: AnalysisResult[] = [];
 
   for (const productRow of productData) {
-    const plu = String(productRow.PLU);
+    const plu = String(productRow.SKU_NUMBER);
 
     // Skip PLUs that aren't exactly 4 digits
     if (!isValidPLU(plu)) {
@@ -116,7 +116,7 @@ export function analyzePLUs(
     }
     processedPLUs.add(plu);
 
-    const sapStatus = productRow['SAP Status'] ?? '';
+    const sapStatus = productRow.STATUS_IN_SAP ?? '';
 
     // Get description from "Product Description" field (preferred) or fallback to other variants
     // Remove the first 7 characters to strip the PLU and dash (e.g., "1234 - Product Name" -> "Product Name")
