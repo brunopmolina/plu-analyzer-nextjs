@@ -78,7 +78,7 @@ export function FileUploadButton({
       </Button>
       {showStatusText && (
         <div
-          className={`text-xs flex items-center gap-1 ${
+          className={`text-xs ${
             status.error
               ? 'text-red-500'
               : status.loaded
@@ -86,27 +86,29 @@ export function FileUploadButton({
               : 'text-muted-foreground'
           }`}
         >
-          <span className="truncate flex-1">
-            {isLoading ? (
-              'Loading...'
-            ) : status.error ? (
-              status.error
-            ) : status.loaded ? (
-              <span title={status.fileName}>{status.rowCount.toLocaleString()} rows</span>
-            ) : (
-              helperText
+          <div className="flex items-start gap-1">
+            <span className="break-words flex-1 leading-tight">
+              {isLoading ? (
+                'Loading...'
+              ) : status.error ? (
+                status.error
+              ) : status.loaded ? (
+                <span title={status.fileName}>{status.rowCount.toLocaleString()} rows</span>
+              ) : (
+                helperText
+              )}
+            </span>
+            {!isLoading && (status.error || status.loaded) && onDismissStatus && (
+              <button
+                type="button"
+                onClick={onDismissStatus}
+                className="p-0.5 hover:bg-muted rounded shrink-0 opacity-60 hover:opacity-100"
+                aria-label="Dismiss"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
             )}
-          </span>
-          {!isLoading && (status.error || status.loaded) && onDismissStatus && (
-            <button
-              type="button"
-              onClick={onDismissStatus}
-              className="p-0.5 hover:bg-muted rounded shrink-0"
-              aria-label="Dismiss"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          )}
+          </div>
         </div>
       )}
     </div>

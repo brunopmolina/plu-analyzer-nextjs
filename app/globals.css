@@ -123,3 +123,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Sonner toast close button styling */
+[data-sonner-toast] [data-close-button] {
+  position: absolute !important;
+  top: 6px !important;
+  right: 6px !important;
+  left: auto !important;
+  transform: none !important;
+  background: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: var(--accent) !important;
+}
