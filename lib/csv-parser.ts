@@ -11,14 +11,35 @@ interface ParseResult<T> {
 }
 
 /**
- * Case-insensitive column validation.
+ * Column aliases: maps alternative column names to the canonical name.
+ * Keys are lowercase for case-insensitive matching.
+ */
+const COLUMN_ALIASES: Record<string, string> = {
+  'supplychannel': 'supplyChannel.key',
+};
+
+/**
+ * Finds the canonical column name, checking aliases if needed.
+ * Returns the canonical name if found, otherwise returns the original.
+ */
+function getCanonicalColumnName(header: string): string {
+  const lowerHeader = header.toLowerCase();
+  return COLUMN_ALIASES[lowerHeader] || header;
+}
+
+/**
+ * Case-insensitive column validation with alias support.
  * Returns missing columns (using expected case for error messages).
  */
 function validateColumns(headers: string[], requiredColumns: readonly string[]): string[] {
-  const headersLower = headers.map((h) => h.toLowerCase());
+  // Build a set of normalized header names (lowercase, with aliases resolved)
+  const normalizedHeaders = new Set(
+    headers.map((h) => getCanonicalColumnName(h).toLowerCase())
+  );
+
   const missing: string[] = [];
   for (const col of requiredColumns) {
-    if (!headersLower.includes(col.toLowerCase())) {
+    if (!normalizedHeaders.has(col.toLowerCase())) {
       missing.push(col);
     }
   }
@@ -26,8 +47,8 @@ function validateColumns(headers: string[], requiredColumns: readonly string[]):
 }
 
 /**
- * Creates a mapping from lowercase header names to their expected column names.
- * This allows us to normalize CSV headers to the expected case.
+ * Creates a mapping from actual header names to their expected column names.
+ * Supports both case-insensitive matching and column aliases.
  */
 function createColumnMapping(
   headers: string[],
@@ -36,10 +57,11 @@ function createColumnMapping(
   const mapping = new Map<string, string>();
 
   for (const required of requiredColumns) {
-    // Find the actual header that matches (case-insensitive)
-    const actualHeader = headers.find(
-      (h) => h.toLowerCase() === required.toLowerCase()
-    );
+    // Find the actual header that matches (case-insensitive, with alias support)
+    const actualHeader = headers.find((h) => {
+      const canonical = getCanonicalColumnName(h);
+      return canonical.toLowerCase() === required.toLowerCase();
+    });
     if (actualHeader) {
       mapping.set(actualHeader, required);
     }
