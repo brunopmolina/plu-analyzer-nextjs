@@ -7,6 +7,7 @@ import { AnalysisSection } from '@/components/sections/AnalysisSection';
 import { ResultsSection } from '@/components/sections/ResultsSection';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { HelpDialog } from '@/components/HelpDialog';
+import { LogoutButton } from '@/components/LogoutButton';
 import { Package } from 'lucide-react';
 
 export default function Home() {
@@ -26,6 +27,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-1">
               <HelpDialog />
+              <LogoutButton />
               <ThemeToggle />
             </div>
           </div>
