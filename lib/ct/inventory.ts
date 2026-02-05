@@ -75,31 +75,6 @@ async function fetchInventoryBatch(
   return inventory;
 }
 
-// Process batches with concurrency limit
-async function processWithConcurrency<T, R>(
-  items: T[],
-  concurrency: number,
-  processor: (item: T, index: number) => Promise<R>
-): Promise<R[]> {
-  const results: R[] = [];
-  let currentIndex = 0;
-
-  async function processNext(): Promise<void> {
-    while (currentIndex < items.length) {
-      const index = currentIndex++;
-      const result = await processor(items[index], index);
-      results[index] = result;
-    }
-  }
-
-  const workers = Array(Math.min(concurrency, items.length))
-    .fill(null)
-    .map(() => processNext());
-
-  await Promise.all(workers);
-  return results;
-}
-
 export interface FetchInventoryProgress {
   completedBatches: number;
   totalBatches: number;
@@ -118,34 +93,27 @@ export async function fetchInventoryForSkus(
   const apiUrl = getApiUrl();
   const accessToken = await getAccessToken();
 
-  // Batch SKUs - keep under 10k offset limit (SKUs × channels < 10,000)
-  // With ~146 channels: 10,000 / 146 ≈ 68 max SKUs per batch, using 50 for safety
-  const batchSize = 50;
+  // Batch SKUs - larger batches to reduce total requests for Cloudflare limits
+  // Using 100 SKUs per batch to minimize subrequests
+  const batchSize = 100;
   const batches: string[][] = [];
   for (let i = 0; i < skus.length; i += batchSize) {
     batches.push(skus.slice(i, i + batchSize));
   }
 
-  let completedBatches = 0;
+  // Process batches sequentially to avoid Cloudflare subrequest limits
+  const allResults: CTInventoryRecord[] = [];
+  for (let i = 0; i < batches.length; i++) {
+    const results = await fetchInventoryBatch(
+      batches[i],
+      projectKey,
+      apiUrl,
+      accessToken,
+      channelMap
+    );
+    allResults.push(...results);
+    onProgress?.({ completedBatches: i + 1, totalBatches: batches.length });
+  }
 
-  // Process batches in parallel (10 concurrent requests)
-  const concurrency = 10;
-  const batchResults = await processWithConcurrency(
-    batches,
-    concurrency,
-    async (batchSkus) => {
-      const results = await fetchInventoryBatch(
-        batchSkus,
-        projectKey,
-        apiUrl,
-        accessToken,
-        channelMap
-      );
-      completedBatches++;
-      onProgress?.({ completedBatches, totalBatches: batches.length });
-      return results;
-    }
-  );
-
-  return batchResults.flat();
+  return allResults;
 }
