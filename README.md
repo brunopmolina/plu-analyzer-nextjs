@@ -67,6 +67,30 @@ The **Audit** button provides a separate analysis to identify products that are 
 
 This helps identify items that are incorrectly published online when they should only be available in physical stores.
 
+## Snowflake Data via R2
+
+Plant data (`dim_plant.csv`) and product data (`dim_product.csv`) are stored in a Cloudflare R2 bucket. The app provides "Download from Snowflake" buttons that fetch these files through the `/api/csv` API route.
+
+### How It Works
+
+1. The Snowflake data is periodically exported and uploaded to an R2 bucket (`plu-csv-data`)
+2. When you click "Download from Snowflake", the app calls `/api/csv?file=<filename>`
+3. In production (Cloudflare Pages), the route uses the `CSV_BUCKET` R2 binding directly
+4. In local dev, the route falls back to the S3-compatible API using R2 credentials from `.env`
+
+### Setup
+
+Add the following environment variables to enable R2 downloads:
+
+| Variable | Description |
+|----------|-------------|
+| `R2_ACCESS_KEY_ID` | Cloudflare R2 access key ID |
+| `R2_SECRET_ACCESS_KEY` | Cloudflare R2 secret access key |
+| `R2_ENDPOINT` | R2 S3-compatible endpoint URL |
+| `R2_BUCKET_NAME` | R2 bucket name (e.g., `plu-csv-data`) |
+
+For production, the R2 bucket is bound as `CSV_BUCKET` in `wrangler.toml` and these env vars are not needed.
+
 ## CommerceTools API Integration
 
 Instead of manually uploading Inventory and Status CSV files, you can automatically download this data directly from CommerceTools.
@@ -126,6 +150,16 @@ Open [http://localhost:3000](http://localhost:3000) to use the analyzer.
 For local development, create a `.env.local` file:
 
 ```env
+# Authentication
+AUTH_PASSWORD=your_password
+AUTH_SECRET=your_secret_key
+
+# R2 (optional - enables "Download from Snowflake" buttons locally)
+R2_ACCESS_KEY_ID=your_access_key_id
+R2_SECRET_ACCESS_KEY=your_secret_access_key
+R2_ENDPOINT=https://your_account_id.r2.cloudflarestorage.com
+R2_BUCKET_NAME=plu-csv-data
+
 # CommerceTools (optional - enables automatic data download)
 CTP_CLIENT_ID=your_client_id
 CTP_CLIENT_SECRET=your_client_secret
