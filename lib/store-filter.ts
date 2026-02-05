@@ -4,25 +4,39 @@ import { EXCLUDED_SITE_NUMBERS } from './constants';
 import type { PlantRecord } from './types';
 
 /**
- * Convert Excel serial date number to JavaScript Date.
- * Excel serial dates are the number of days since 1899-12-30 (Windows format).
+ * Parse a date value that may be an Excel serial number or a date string.
+ * Handles: Excel serial numbers, "MM/DD/YYYY", "YYYY-MM-DD", and ISO strings.
  */
 export function excelSerialToDate(serial: string | number | null | undefined): Date | null {
   if (serial === null || serial === undefined || serial === '') {
     return null;
   }
 
-  const serialNum = typeof serial === 'string' ? parseFloat(serial) : serial;
-
-  if (isNaN(serialNum)) {
-    return null;
+  // Pure number — treat as Excel serial
+  if (typeof serial === 'number') {
+    const excelEpoch = new Date(1899, 11, 30);
+    const msPerDay = 24 * 60 * 60 * 1000;
+    return new Date(excelEpoch.getTime() + serial * msPerDay);
   }
 
-  // Excel epoch is December 30, 1899
-  // We add the serial number as days to this epoch
-  const excelEpoch = new Date(1899, 11, 30); // Month is 0-indexed
-  const msPerDay = 24 * 60 * 60 * 1000;
-  return new Date(excelEpoch.getTime() + serialNum * msPerDay);
+  const trimmed = serial.trim();
+  if (trimmed === '') return null;
+
+  // If the string is purely numeric (no slashes, dashes, etc.), treat as Excel serial
+  if (/^\d+(\.\d+)?$/.test(trimmed)) {
+    const serialNum = parseFloat(trimmed);
+    const excelEpoch = new Date(1899, 11, 30);
+    const msPerDay = 24 * 60 * 60 * 1000;
+    return new Date(excelEpoch.getTime() + serialNum * msPerDay);
+  }
+
+  // Otherwise try parsing as a date string (MM/DD/YYYY, YYYY-MM-DD, ISO, etc.)
+  const parsed = new Date(trimmed);
+  if (!isNaN(parsed.getTime())) {
+    return parsed;
+  }
+
+  return null;
 }
 
 /**
