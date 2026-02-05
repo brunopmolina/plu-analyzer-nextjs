@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { isConfigured } from '@/lib/ct/auth';
 import { fetchSupplyChannels } from '@/lib/ct/channels';
 import { fetchUSProducts, getSkusFromProducts } from '@/lib/ct/products';
