@@ -1,3 +1,4 @@
+/// <reference types="@cloudflare/workers-types" />
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
