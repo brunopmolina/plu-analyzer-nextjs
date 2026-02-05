@@ -29,11 +29,11 @@ export async function fetchSupplyChannels(logger: SubrequestLogger): Promise<Cha
     logger.log('channels', 'fetch_page');
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = (await response.json().catch(() => ({}))) as { message?: string };
       throw new Error(`Failed to fetch channels: ${errorData.message || response.statusText}`);
     }
 
-    const data: CTChannelPagedResult = await response.json();
+    const data = (await response.json()) as CTChannelPagedResult;
     total = data.total;
 
     for (const channel of data.results) {

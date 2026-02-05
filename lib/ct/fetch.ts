@@ -12,7 +12,7 @@ export async function fetchWithRetry<T>(
     logger.log(moduleName, `fetch_page${attempt > 1 ? `_retry${attempt}` : ''}`);
 
     if (response.ok) {
-      return response.json();
+      return (await response.json()) as T;
     }
 
     const status = response.status;
@@ -23,7 +23,7 @@ export async function fetchWithRetry<T>(
       continue;
     }
 
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = (await response.json().catch(() => ({}))) as { message?: string };
     throw new Error(`Request failed: ${errorData.message || response.statusText}`);
   }
   throw new Error('Max retries exceeded');

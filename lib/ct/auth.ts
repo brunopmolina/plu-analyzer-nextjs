@@ -54,11 +54,11 @@ export async function getAccessToken(logger?: SubrequestLogger): Promise<string>
   logger?.log('auth', 'oauth_token');
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = (await response.json().catch(() => ({}))) as { error_description?: string };
     throw new Error(`Authentication failed: ${errorData.error_description || response.statusText}`);
   }
 
-  const data: CTTokenResponse = await response.json();
+  const data = (await response.json()) as CTTokenResponse;
 
   cachedToken = {
     accessToken: data.access_token,
