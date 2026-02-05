@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileUploadButton } from '@/components/FileUploadButton';
+import { CTFetchButton } from '@/components/CTFetchButton';
 import { useAnalyzer } from '@/context/AnalyzerContext';
 import { parseInventoryCSV, parseStatusCSV, parseProductCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
@@ -138,7 +139,7 @@ export function SessionFilesSection() {
             onFileSelect={handleInventorySelect}
             onDismissStatus={() => dismissFileStatus('inventory')}
             isLoading={loadingFile === 'inventory'}
-            helperText="Download from CT"
+            helperText="You can Export from CT"
           />
           <FileUploadButton
             label="Status in CT.csv"
@@ -146,7 +147,7 @@ export function SessionFilesSection() {
             onFileSelect={handleStatusSelect}
             onDismissStatus={() => dismissFileStatus('status')}
             isLoading={loadingFile === 'status'}
-            helperText="Download from CT"
+            helperText="You can Export from CT"
           />
           <FileUploadButton
             label="v_dim_product.csv"
@@ -154,7 +155,21 @@ export function SessionFilesSection() {
             onFileSelect={handleProductSelect}
             onDismissStatus={() => dismissFileStatus('product')}
             isLoading={loadingFile === 'product'}
-            helperText="Download from Snowflake"
+            helperText="You can Export from Snowflake"
+          />
+        </div>
+
+        {/* CT Fetch section - only shows if configured */}
+        <div className="pt-3 border-t mt-3">
+          <p className="text-xs text-muted-foreground mb-2">Or fetch Inventory & Status Automatically:</p>
+          <CTFetchButton
+            onComplete={(inventory, status) => {
+              setInventoryData(inventory, 'CommerceTools API');
+              setStatusData(status, 'CommerceTools API');
+              toast.success('Data loaded from CommerceTools', {
+                description: `${inventory.length.toLocaleString()} inventory records, ${status.length.toLocaleString()} status records`,
+              });
+            }}
           />
         </div>
       </CardContent>

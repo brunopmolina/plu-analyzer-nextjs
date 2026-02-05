@@ -6,6 +6,7 @@ export interface PlantRecord {
   ORGANIZATION_NUMBER: string;
   OPEN_DATE: string | number | null;
   CLOSE_DATE: string | number | null;
+  SITE_DESCRIPTION?: string;
 }
 
 export interface InventoryRecord {

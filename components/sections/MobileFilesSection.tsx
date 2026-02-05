@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileUploadButton } from '@/components/FileUploadButton';
+import { CTFetchButton } from '@/components/CTFetchButton';
 import { useAnalyzer } from '@/context/AnalyzerContext';
 import { parsePlantCSV, parseInventoryCSV, parseStatusCSV, parseProductCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
 import { FolderOpen, Trash2, RefreshCw } from 'lucide-react';
+import { StoreDescriptionsDialog } from '@/components/StoreDescriptionsDialog';
 import { toast } from 'sonner';
 
 export function MobileFilesSection() {
@@ -172,13 +174,16 @@ export function MobileFilesSection() {
                 onFileSelect={handlePlantSelect}
                 onDismissStatus={() => dismissFileStatus('plant')}
                 isLoading={loadingFile === 'plant'}
-                helperText="Download from Snowflake"
+                helperText="You can Export from Snowflake"
               />
             </div>
             {state.plantStatus.loaded && (
-              <div className="text-xs text-muted-foreground whitespace-nowrap">
-                {state.activeStores.length} stores
-                {state.plantMetadata && ` · ${formatDate(state.plantMetadata.last_updated)}`}
+              <div className="flex items-center gap-2">
+                <div className="text-xs text-muted-foreground whitespace-nowrap">
+                  {state.activeStores.length} stores
+                  {state.plantMetadata && ` · ${formatDate(state.plantMetadata.last_updated)}`}
+                </div>
+                <StoreDescriptionsDialog />
               </div>
             )}
           </div>
@@ -194,7 +199,7 @@ export function MobileFilesSection() {
               onFileSelect={handleInventorySelect}
               onDismissStatus={() => dismissFileStatus('inventory')}
               isLoading={loadingFile === 'inventory'}
-              helperText="Download from CT"
+              helperText="You can Export from CT"
             />
             <FileUploadButton
               label="Status in CT.csv"
@@ -202,7 +207,7 @@ export function MobileFilesSection() {
               onFileSelect={handleStatusSelect}
               onDismissStatus={() => dismissFileStatus('status')}
               isLoading={loadingFile === 'status'}
-              helperText="Download from CT"
+              helperText="You can Export from CT"
             />
             <FileUploadButton
               label="v_dim_product.csv"
@@ -210,9 +215,23 @@ export function MobileFilesSection() {
               onFileSelect={handleProductSelect}
               onDismissStatus={() => dismissFileStatus('product')}
               isLoading={loadingFile === 'product'}
-              helperText="Download from Snowflake"
+              helperText="You can Export from Snowflake"
             />
           </div>
+        </div>
+
+        {/* CT Fetch section - only shows if configured */}
+        <div className="pt-3 border-t">
+          <p className="text-xs text-muted-foreground mb-1.5">Or fetch Inventory & Status Automatically:</p>
+          <CTFetchButton
+            onComplete={(inventory, status) => {
+              setInventoryData(inventory, 'CommerceTools API');
+              setStatusData(status, 'CommerceTools API');
+              toast.success('Data loaded from CommerceTools', {
+                description: `${inventory.length.toLocaleString()} inventory, ${status.length.toLocaleString()} status`,
+              });
+            }}
+          />
         </div>
       </CardContent>
     </Card>

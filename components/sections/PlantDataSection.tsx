@@ -8,6 +8,7 @@ import { useAnalyzer } from '@/context/AnalyzerContext';
 import { parsePlantCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
 import { Trash2, Store } from 'lucide-react';
+import { StoreDescriptionsDialog } from '@/components/StoreDescriptionsDialog';
 import { toast } from 'sonner';
 
 export function PlantDataSection() {
@@ -59,7 +60,7 @@ export function PlantDataSection() {
   };
 
   return (
-    <Card className="h-fit hidden lg:block">
+    <Card className="hidden lg:block">
       <CardHeader className="pb-2 lg:pb-3">
         <div className="flex items-center justify-between lg:block">
           <CardTitle className="flex items-center gap-2 text-base">
@@ -79,28 +80,31 @@ export function PlantDataSection() {
           onFileSelect={handleFileSelect}
           onDismissStatus={() => dismissFileStatus('plant')}
           isLoading={isLoading}
-          helperText="Download from Snowflake"
+          helperText="You can Export from Snowflake"
         />
 
         {state.plantStatus.loaded && (
-          <div className="flex items-center justify-between p-2 rounded-md bg-muted text-sm">
+          <div className="flex items-start justify-between gap-2 p-2 rounded-md bg-muted text-sm">
             <div>
-              <p className="font-medium">{state.activeStores.length} stores</p>
+              <p className="font-medium">{state.activeStores.length} active stores</p>
               {state.plantMetadata && (
                 <p className="text-xs text-muted-foreground">
                   {formatDate(state.plantMetadata.last_updated)}
                 </p>
               )}
             </div>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={clearStoredPlantData}
-              className="h-7 px-2"
-            >
-              <Trash2 className="h-3 w-3 mr-1" />
-              Clear
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={clearStoredPlantData}
+                className="h-7 px-2 w-full"
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                Clear
+              </Button>
+              <StoreDescriptionsDialog />
+            </div>
           </div>
         )}
       </CardContent>

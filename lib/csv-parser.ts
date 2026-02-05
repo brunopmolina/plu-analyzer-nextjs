@@ -15,6 +15,9 @@ interface ParseResult<T> {
  * Keys are lowercase for case-insensitive matching.
  */
 const COLUMN_ALIASES: Record<string, Record<string, string>> = {
+  plant: {
+    'site_description': 'SITE_DESCRIPTION',
+  },
   inventory: {
     'supplychannel': 'supplyChannel.key',
   },
@@ -59,6 +62,7 @@ function validateColumns(
 /**
  * Creates a mapping from actual header names to their expected column names.
  * Supports both case-insensitive matching and column aliases.
+ * Also maps any columns that have aliases defined (even if not required).
  */
 function createColumnMapping(
   headers: string[],
@@ -67,6 +71,7 @@ function createColumnMapping(
 ): Map<string, string> {
   const mapping = new Map<string, string>();
 
+  // Map required columns
   for (const required of requiredColumns) {
     // Find the actual header that matches (case-insensitive, with alias support)
     const actualHeader = headers.find((h) => {
@@ -75,6 +80,18 @@ function createColumnMapping(
     });
     if (actualHeader) {
       mapping.set(actualHeader, required);
+    }
+  }
+
+  // Also map any columns that have aliases (for optional columns like SITE_DESCRIPTION)
+  const aliases = fileType ? COLUMN_ALIASES[fileType] : {};
+  if (aliases) {
+    for (const header of headers) {
+      const lowerHeader = header.toLowerCase();
+      const canonical = aliases[lowerHeader];
+      if (canonical && !mapping.has(header)) {
+        mapping.set(header, canonical);
+      }
     }
   }
 
