@@ -126,10 +126,14 @@ async function parseCSV<T>(
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        if (results.errors.length > 0) {
+        // Filter out non-fatal field count mismatches (e.g. from embedded commas in Snowflake exports)
+        const fatalErrors = results.errors.filter(
+          (e) => e.type !== 'FieldMismatch'
+        );
+        if (fatalErrors.length > 0) {
           resolve({
             data: null,
-            error: `Parse error: ${results.errors[0].message}`,
+            error: `Parse error: ${fatalErrors[0].message}`,
             rowCount: 0,
           });
           return;
