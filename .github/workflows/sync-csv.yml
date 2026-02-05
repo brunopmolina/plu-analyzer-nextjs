@@ -1,0 +1,32 @@
+name: Sync CSVs from SFTP to R2
+
+on:
+  schedule:
+    # 12:15 UTC = 7:15 AM EST / 8:15 AM EDT
+    - cron: '15 12 * * *'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install sync dependencies
+        run: npm install ssh2-sftp-client @aws-sdk/client-s3
+
+      - name: Sync CSVs to R2
+        env:
+          EMARSYS_SFTP_ADDRESS: ${{ secrets.EMARSYS_SFTP_ADDRESS }}
+          EMARSYS_SFTP_USER: ${{ secrets.EMARSYS_SFTP_USER }}
+          EMARSYS_SFTP_PASS: ${{ secrets.EMARSYS_SFTP_PASS }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: node scripts/sync-sftp-to-r2.mjs

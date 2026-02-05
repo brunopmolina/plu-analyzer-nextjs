@@ -1,0 +1,6 @@
+name = "plu-analyzer-nextjs"
+compatibility_date = "2024-01-01"
+
+[[r2_buckets]]
+binding = "CSV_BUCKET"
+bucket_name = "plu-csv-data"
