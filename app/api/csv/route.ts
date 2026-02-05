@@ -4,6 +4,7 @@ export const runtime = 'edge';
 
 interface Env {
   CSV_BUCKET: R2Bucket;
+  [key: string]: unknown;
 }
 
 export async function GET(request: Request) {
