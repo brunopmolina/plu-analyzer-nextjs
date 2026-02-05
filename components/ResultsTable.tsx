@@ -33,6 +33,7 @@ import type { AnalysisResult } from '@/lib/types';
 
 interface ResultsTableProps {
   data: AnalysisResult[];
+  description?: string;
 }
 
 // Custom sort order for Recommendation: Unpublish first, then Publish, then No Action
@@ -42,7 +43,7 @@ const recommendationOrder: Record<string, number> = {
   'No Action': 2,
 };
 
-export function ResultsTable({ data }: ResultsTableProps) {
+export function ResultsTable({ data, description }: ResultsTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'Recommendation', desc: false },
   ]);
@@ -359,6 +360,11 @@ export function ResultsTable({ data }: ResultsTableProps) {
           </Button>
         )}
       </div>
+
+      {/* Description */}
+      {description && (
+        <p className="text-sm font-semibold">{description}</p>
+      )}
 
       {/* Results count */}
       <div className="text-sm text-muted-foreground">

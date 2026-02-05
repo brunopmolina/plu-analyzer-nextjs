@@ -33,6 +33,7 @@ import type { FilteredOutResult } from '@/lib/types';
 
 interface FilteredOutTableProps {
   data: FilteredOutResult[];
+  description?: string;
 }
 
 // Custom sort order for Would Recommend: Unpublish first, then Publish
@@ -41,7 +42,7 @@ const recommendationOrder: Record<string, number> = {
   'Publish': 1,
 };
 
-export function FilteredOutTable({ data }: FilteredOutTableProps) {
+export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'Would Recommend', desc: false },
   ]);
@@ -376,6 +377,11 @@ export function FilteredOutTable({ data }: FilteredOutTableProps) {
           </Button>
         )}
       </div>
+
+      {/* Description */}
+      {description && (
+        <p className="text-sm font-semibold">{description}</p>
+      )}
 
       {/* Results count */}
       <div className="text-sm text-muted-foreground">

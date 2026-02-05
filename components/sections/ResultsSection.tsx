@@ -187,10 +187,18 @@ export function ResultsSection() {
       <CardContent className="pt-0">
         {hasResults ? (
           viewMode === 'eligible' ? (
-            filteredResults && <ResultsTable data={filteredResults} />
+            filteredResults && (
+              <ResultsTable
+                data={filteredResults}
+                description="These are the items Eligible for Ecom listing and the recommendation to publish or unpublish"
+              />
+            )
           ) : viewMode === 'ineligible' ? (
             hasFilteredOut ? (
-              <FilteredOutTable data={state.filteredOutResults!} />
+              <FilteredOutTable
+                data={state.filteredOutResults!}
+                description="These are the items NOT Eligible for Ecom listing and a proposed recommendation. First decision on these items is whether to make them Eligible"
+              />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 No filtered out items
@@ -198,7 +206,10 @@ export function ResultsSection() {
             )
           ) : viewMode === 'publishedIneligible' ? (
             publishedIneligible.length > 0 ? (
-              <FilteredOutTable data={publishedIneligible} />
+              <FilteredOutTable
+                data={publishedIneligible}
+                description="These items are currently Published on the website, but are NOT Eligible for Ecom listing. Please verify"
+              />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 No published ineligible items
