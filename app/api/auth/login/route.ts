@@ -15,7 +15,7 @@ function getEnvVar(name: string): string | undefined {
 
 export async function POST(request: NextRequest) {
   try {
-    const { password } = await request.json();
+    const { password } = (await request.json()) as { password?: string };
 
     const expectedPassword = getEnvVar('AUTH_PASSWORD');
     const secret = getEnvVar('AUTH_SECRET');
