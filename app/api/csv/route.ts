@@ -1,7 +1,15 @@
-/// <reference types="@cloudflare/workers-types" />
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
+
+// Minimal R2 types for what we need
+interface R2Object {
+  text(): Promise<string>;
+}
+
+interface R2Bucket {
+  get(key: string): Promise<R2Object | null>;
+}
 
 interface Env {
   CSV_BUCKET: R2Bucket;
