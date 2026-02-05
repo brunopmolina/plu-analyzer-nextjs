@@ -1,5 +1,7 @@
 export const runtime = 'edge';
 
+import { cookies } from 'next/headers';
+import { validateApiSession } from '@/lib/auth';
 import { isConfigured } from '@/lib/ct/auth';
 import { fetchSupplyChannels } from '@/lib/ct/channels';
 import { fetchUSProducts, getSkusFromProducts } from '@/lib/ct/products';
@@ -7,6 +9,16 @@ import { fetchInventoryForSkus } from '@/lib/ct/inventory';
 import { transformToStatusRecords, transformToInventoryRecords } from '@/lib/ct/transform';
 import { createSubrequestLogger } from '@/lib/ct/logger';
 import type { CTSSEEvent } from '@/lib/ct/types';
+import { getRequestContext } from '@cloudflare/next-on-pages';
+
+function getEnvVar(name: string): string | undefined {
+  try {
+    const ctx = getRequestContext();
+    return (ctx.env as Record<string, string>)[name] ?? process.env[name];
+  } catch {
+    return process.env[name];
+  }
+}
 
 function sendSSE(controller: ReadableStreamDefaultController, event: CTSSEEvent) {
   const data = `data: ${JSON.stringify(event)}\n\n`;
@@ -14,6 +26,18 @@ function sendSSE(controller: ReadableStreamDefaultController, event: CTSSEEvent)
 }
 
 export async function POST() {
+  // Validate session authentication
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('auth_session')?.value;
+  const secret = getEnvVar('AUTH_SECRET');
+
+  if (!(await validateApiSession(sessionCookie, secret))) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   if (!isConfigured()) {
     return new Response(
       JSON.stringify({ error: 'CommerceTools credentials not configured' }),

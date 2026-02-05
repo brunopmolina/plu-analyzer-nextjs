@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSession } from '@/lib/auth';
+import { createSession, timingSafeEqual } from '@/lib/auth';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password !== expectedPassword) {
+    // Use constant-time comparison to prevent timing attacks
+    if (!password || typeof password !== 'string' || !timingSafeEqual(password, expectedPassword)) {
       return NextResponse.json(
         { error: 'Invalid password' },
         { status: 401 }
