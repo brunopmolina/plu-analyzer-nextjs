@@ -28,9 +28,17 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
     return null;
   }
 
+  // Wrapper with label text
+  const wrapper = (content: React.ReactNode) => (
+    <div className="pt-3 border-t mt-3">
+      <p className="text-xs text-muted-foreground mb-2">Or fetch Inventory & Status Automatically:</p>
+      {content}
+    </div>
+  );
+
   // Error state
   if (error) {
-    return (
+    return wrapper(
       <div className="inline-flex flex-col gap-0.5">
         <Button
           variant="default"
@@ -48,7 +56,7 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
 
   // Fetching state
   if (isFetching && progress) {
-    return (
+    return wrapper(
       <div className="inline-flex flex-col gap-0.5 min-w-[200px]">
         <Button
           variant="secondary"
@@ -78,7 +86,7 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
   }
 
   // Idle state
-  return (
+  return wrapper(
     <Button
       variant="default"
       size="sm"

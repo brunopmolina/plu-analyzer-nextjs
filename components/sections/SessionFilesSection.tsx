@@ -160,18 +160,15 @@ export function SessionFilesSection() {
         </div>
 
         {/* CT Fetch section - only shows if configured */}
-        <div className="pt-3 border-t mt-3">
-          <p className="text-xs text-muted-foreground mb-2">Or fetch Inventory & Status Automatically:</p>
-          <CTFetchButton
-            onComplete={(inventory, status) => {
-              setInventoryData(inventory, 'CommerceTools API');
-              setStatusData(status, 'CommerceTools API');
-              toast.success('Data loaded from CommerceTools', {
-                description: `${inventory.length.toLocaleString()} inventory records, ${status.length.toLocaleString()} status records`,
-              });
-            }}
-          />
-        </div>
+        <CTFetchButton
+          onComplete={(inventory, status) => {
+            setInventoryData(inventory, 'CommerceTools API');
+            setStatusData(status, 'CommerceTools API');
+            toast.success('Data loaded from CommerceTools', {
+              description: `${inventory.length.toLocaleString()} inventory records, ${status.length.toLocaleString()} status records`,
+            });
+          }}
+        />
       </CardContent>
     </Card>
   );
