@@ -35,7 +35,7 @@ export function useCTFetch(options: UseCTFetchOptions = {}): UseCTFetchReturn {
   // Check if CT is configured on mount
   useEffect(() => {
     fetch('/api/ct/status')
-      .then(res => res.json())
+      .then(res => res.json() as Promise<{ configured: boolean }>)
       .then(data => setIsConfigured(data.configured))
       .catch(() => setIsConfigured(false));
   }, []);
@@ -55,7 +55,7 @@ export function useCTFetch(options: UseCTFetchOptions = {}): UseCTFetchReturn {
     })
       .then(async response => {
         if (!response.ok) {
-          const data = await response.json();
+          const data = (await response.json()) as { error?: string };
           throw new Error(data.error || 'Failed to fetch from CommerceTools');
         }
 
