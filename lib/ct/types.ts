@@ -96,11 +96,17 @@ export interface CTProgressEvent {
   percent?: number;
 }
 
+export interface SubrequestSummary {
+  total: number;
+  byModule: Record<string, number>;
+}
+
 export interface CTCompleteEvent {
   type: 'complete';
   data: {
     inventoryCount: number;
     statusCount: number;
+    subrequests?: SubrequestSummary;
   };
 }
 

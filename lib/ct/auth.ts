@@ -1,4 +1,5 @@
 import type { CTTokenResponse, CachedToken } from './types';
+import { subrequestLogger } from './logger';
 
 export function normalizeUrl(url: string): string {
   // Remove protocol prefix if present
@@ -50,6 +51,7 @@ export async function getAccessToken(): Promise<string> {
     },
     body: `grant_type=client_credentials&scope=${encodeURIComponent(scopes)}`,
   });
+  subrequestLogger.log('auth', 'oauth_token');
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

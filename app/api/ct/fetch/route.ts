@@ -5,6 +5,7 @@ import { fetchSupplyChannels } from '@/lib/ct/channels';
 import { fetchUSProducts, getSkusFromProducts } from '@/lib/ct/products';
 import { fetchInventoryForSkus } from '@/lib/ct/inventory';
 import { transformToStatusRecords, transformToInventoryRecords } from '@/lib/ct/transform';
+import { subrequestLogger } from '@/lib/ct/logger';
 import type { CTSSEEvent } from '@/lib/ct/types';
 
 function sendSSE(controller: ReadableStreamDefaultController, event: CTSSEEvent) {
@@ -23,6 +24,10 @@ export async function POST() {
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        // Reset subrequest logger for this request
+        subrequestLogger.reset();
+        console.log('[CT Fetch] Starting CommerceTools data fetch...');
+
         // Step 1: Authenticate
         sendSSE(controller, {
           type: 'progress',
@@ -92,12 +97,17 @@ export async function POST() {
         const statusRecords = transformToStatusRecords(products);
         const inventoryRecords = transformToInventoryRecords(inventory);
 
+        // Get subrequest summary
+        const subrequestSummary = subrequestLogger.getSummary();
+        console.log(`[CT Fetch] Complete. Total subrequests: ${subrequestSummary.total}`, subrequestSummary.byModule);
+
         // Send complete event with the data
         sendSSE(controller, {
           type: 'complete',
           data: {
             inventoryCount: inventoryRecords.length,
             statusCount: statusRecords.length,
+            subrequests: subrequestSummary,
           },
         });
 

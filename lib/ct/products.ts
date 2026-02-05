@@ -1,5 +1,6 @@
 import { getAccessToken, getProjectKey, getApiUrl } from './auth';
 import type { CTProductPagedResult, CTProductInfo } from './types';
+import { subrequestLogger } from './logger';
 
 async function fetchWithRetry<T>(
   url: string,
@@ -8,6 +9,7 @@ async function fetchWithRetry<T>(
 ): Promise<T> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     const response = await fetch(url, options);
+    subrequestLogger.log('products', `fetch_page${attempt > 1 ? `_retry${attempt}` : ''}`);
 
     if (response.ok) {
       return response.json();

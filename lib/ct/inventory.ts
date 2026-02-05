@@ -1,5 +1,6 @@
 import { getAccessToken, getProjectKey, getApiUrl } from './auth';
 import type { CTInventoryPagedResult, CTInventoryRecord, ChannelMap } from './types';
+import { subrequestLogger } from './logger';
 
 async function fetchWithRetry<T>(
   url: string,
@@ -8,6 +9,7 @@ async function fetchWithRetry<T>(
 ): Promise<T> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     const response = await fetch(url, options);
+    subrequestLogger.log('inventory', `fetch_page${attempt > 1 ? `_retry${attempt}` : ''}`);
 
     if (response.ok) {
       return response.json();
@@ -75,6 +77,31 @@ async function fetchInventoryBatch(
   return inventory;
 }
 
+// Process batches with concurrency limit
+async function processWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  processor: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = [];
+  let currentIndex = 0;
+
+  async function processNext(): Promise<void> {
+    while (currentIndex < items.length) {
+      const index = currentIndex++;
+      const result = await processor(items[index], index);
+      results[index] = result;
+    }
+  }
+
+  const workers = Array(Math.min(concurrency, items.length))
+    .fill(null)
+    .map(() => processNext());
+
+  await Promise.all(workers);
+  return results;
+}
+
 export interface FetchInventoryProgress {
   completedBatches: number;
   totalBatches: number;
@@ -93,27 +120,39 @@ export async function fetchInventoryForSkus(
   const apiUrl = getApiUrl();
   const accessToken = await getAccessToken();
 
-  // Batch SKUs - larger batches to reduce total requests for Cloudflare limits
-  // Using 100 SKUs per batch to minimize subrequests
-  const batchSize = 100;
+  // Batch SKUs - keep under 10k offset limit (SKUs × channels < 10,000)
+  // With ~146 channels: 10,000 / 146 ≈ 68 max SKUs per batch, using 50 for safety
+  const batchSize = 50;
   const batches: string[][] = [];
   for (let i = 0; i < skus.length; i += batchSize) {
     batches.push(skus.slice(i, i + batchSize));
   }
 
-  // Process batches sequentially to avoid Cloudflare subrequest limits
-  const allResults: CTInventoryRecord[] = [];
-  for (let i = 0; i < batches.length; i++) {
-    const results = await fetchInventoryBatch(
-      batches[i],
-      projectKey,
-      apiUrl,
-      accessToken,
-      channelMap
-    );
-    allResults.push(...results);
-    onProgress?.({ completedBatches: i + 1, totalBatches: batches.length });
-  }
+  let completedBatches = 0;
 
-  return allResults;
+  // Process batches in parallel (10 concurrent requests)
+  const concurrency = 10;
+  console.log(`[Inventory] Starting parallel fetch: ${batches.length} batches with concurrency ${concurrency}`);
+
+  const batchResults = await processWithConcurrency(
+    batches,
+    concurrency,
+    async (batchSkus) => {
+      const results = await fetchInventoryBatch(
+        batchSkus,
+        projectKey,
+        apiUrl,
+        accessToken,
+        channelMap
+      );
+      completedBatches++;
+      onProgress?.({ completedBatches, totalBatches: batches.length });
+      return results;
+    }
+  );
+
+  const summary = subrequestLogger.getSummary();
+  console.log(`[Inventory] Fetch complete. Total subrequests: ${summary.total}`, summary.byModule);
+
+  return batchResults.flat();
 }
