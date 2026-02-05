@@ -27,7 +27,7 @@ export function AnalysisSection() {
   const isSelected = (filter: RecommendationFilter) => state.filter === filter;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:flex-wrap items-center gap-3 sm:gap-2 p-3 rounded-lg border bg-card">
+    <div className="flex flex-col lg:flex-row lg:flex-wrap items-start lg:items-center gap-3 lg:gap-2 p-3 rounded-lg border bg-card">
       {/* Run button */}
       <Button
         onClick={runAnalysis}
@@ -55,11 +55,11 @@ export function AnalysisSection() {
       )}
 
       {state.summary && (
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 w-full sm:w-auto sm:ml-auto">
-          {/* Action Needed (Publish + Unpublish) - full width on mobile */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap items-center gap-1.5 w-full lg:w-auto lg:ml-auto">
+          {/* Action Needed (Publish + Unpublish) */}
           <button
             onClick={() => handleFilterClick('Action')}
-            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400 border-2 col-span-2 sm:col-span-1
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 md:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400 border-2
               ${isSelected('Action') ? 'border-amber-500' : 'border-transparent'}`}
           >
             <AlertCircle className="h-3.5 w-3.5" />
@@ -70,7 +70,7 @@ export function AnalysisSection() {
           {/* To Publish */}
           <button
             onClick={() => handleFilterClick('Publish')}
-            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-400 border-2
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 md:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-400 border-2
               ${isSelected('Publish') ? 'border-green-500' : 'border-transparent'}`}
           >
             <CheckCircle className="h-3.5 w-3.5" />
@@ -81,7 +81,7 @@ export function AnalysisSection() {
           {/* To Publish - TEMP */}
           <button
             onClick={() => handleFilterClick('Publish - TEMP')}
-            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400 border-2
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 md:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400 border-2
               ${isSelected('Publish - TEMP') ? 'border-yellow-500' : 'border-transparent'}`}
           >
             <Clock className="h-3.5 w-3.5" />
@@ -92,7 +92,7 @@ export function AnalysisSection() {
           {/* To Unpublish */}
           <button
             onClick={() => handleFilterClick('Unpublish')}
-            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 border-2
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 md:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 border-2
               ${isSelected('Unpublish') ? 'border-red-500' : 'border-transparent'}`}
           >
             <XCircle className="h-3.5 w-3.5" />
@@ -103,7 +103,7 @@ export function AnalysisSection() {
           {/* No Action */}
           <button
             onClick={() => handleFilterClick('No Action')}
-            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-2
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 md:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-2
               ${isSelected('No Action') ? 'border-gray-500' : 'border-transparent'}`}
           >
             <MinusCircle className="h-3.5 w-3.5" />
@@ -114,7 +114,7 @@ export function AnalysisSection() {
           {/* All PLUs */}
           <button
             onClick={() => handleFilterClick('All')}
-            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 border-2
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 md:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 border-2
               ${isSelected('All') ? 'border-blue-500' : 'border-transparent'}`}
           >
             <span className="font-bold">{state.summary.total_plus}</span>
