@@ -1,6 +1,6 @@
 // Core analysis logic - ported from Python analyzer.py
 
-import { PUBLISH_THRESHOLD, UNPUBLISH_THRESHOLD, INACTIVE_STATUSES } from './constants';
+import { PUBLISH_THRESHOLD, UNPUBLISH_THRESHOLD, TEMP_PUBLISH_THRESHOLD, INACTIVE_STATUSES } from './constants';
 import type { InventoryRecord, StatusRecord, ProductRecord, AnalysisResult, AnalysisSummary, FilteredOutResult } from './types';
 
 interface AnalysisOutput {
@@ -21,6 +21,9 @@ function isValidPLU(plu: string): boolean {
  *
  * Rules:
  * - Publish: NOT published + status NOT in [Inactive, Discontinued] + >=90% inventory
+ * - Publish - TEMP: NOT published + status IN [Inactive, Discontinued] + >=50% inventory
+ *   (temporary publish to sell through remaining stock; will naturally qualify for unpublish
+ *    once inventory drops below threshold)
  * - Unpublish: IS published + status IN [Inactive, Discontinued] + >=50% out of stock
  * - No Action: Everything else
  */
@@ -28,13 +31,18 @@ function determineRecommendation(
   isPublished: boolean,
   sapStatus: string,
   inventoryPct: number
-): 'Publish' | 'Unpublish' | 'No Action' {
+): 'Publish' | 'Publish - TEMP' | 'Unpublish' | 'No Action' {
   const isInactive = INACTIVE_STATUSES.includes(sapStatus);
   const outOfStockPct = 100 - inventoryPct;
 
   // Publish criteria
   if (!isPublished && !isInactive && inventoryPct >= PUBLISH_THRESHOLD) {
     return 'Publish';
+  }
+
+  // Publish - TEMP criteria: inactive/discontinued, not published, but sufficient inventory to sell through
+  if (!isPublished && isInactive && inventoryPct >= TEMP_PUBLISH_THRESHOLD) {
+    return 'Publish - TEMP';
   }
 
   // Unpublish criteria
@@ -63,6 +71,7 @@ export function analyzePLUs(
       summary: {
         total_plus: 0,
         to_publish: 0,
+        to_publish_temp: 0,
         to_unpublish: 0,
         no_action: 0,
         active_stores: 0,
@@ -156,7 +165,7 @@ export function analyzePLUs(
       const wouldRecommend = determineRecommendation(isPublished, sapStatus, inventoryPct);
 
       // Only track if it would have required action
-      if (wouldRecommend === 'Publish' || wouldRecommend === 'Unpublish') {
+      if (wouldRecommend === 'Publish' || wouldRecommend === 'Publish - TEMP' || wouldRecommend === 'Unpublish') {
         filteredOutResults.push({
           PLU: plu,
           Description: description,
@@ -191,6 +200,7 @@ export function analyzePLUs(
   const summary: AnalysisSummary = {
     total_plus: results.length,
     to_publish: results.filter((r) => r.Recommendation === 'Publish').length,
+    to_publish_temp: results.filter((r) => r.Recommendation === 'Publish - TEMP').length,
     to_unpublish: results.filter((r) => r.Recommendation === 'Unpublish').length,
     no_action: results.filter((r) => r.Recommendation === 'No Action').length,
     active_stores: totalActiveStores,

@@ -37,7 +37,7 @@ export interface AnalysisResult {
   'Total Active Stores': number;
   'Inv 9801': number;
   'Inv 9803': number;
-  Recommendation: 'Publish' | 'Unpublish' | 'No Action';
+  Recommendation: 'Publish' | 'Publish - TEMP' | 'Unpublish' | 'No Action';
 }
 
 export interface FilteredOutResult {
@@ -47,12 +47,13 @@ export interface FilteredOutResult {
   Published: boolean;
   'Inventory %': number;
   'Available In Channel': string;
-  'Would Recommend': 'Publish' | 'Unpublish';
+  'Would Recommend': 'Publish' | 'Publish - TEMP' | 'Unpublish';
 }
 
 export interface AnalysisSummary {
   total_plus: number;
   to_publish: number;
+  to_publish_temp: number;
   to_unpublish: number;
   no_action: number;
   active_stores: number;
@@ -71,7 +72,7 @@ export interface FileUploadStatus {
   fileName?: string;
 }
 
-export type RecommendationFilter = 'All' | 'Action' | 'Publish' | 'Unpublish' | 'No Action';
+export type RecommendationFilter = 'All' | 'Action' | 'Publish' | 'Publish - TEMP' | 'Unpublish' | 'No Action';
 
 export interface AnalyzerState {
   // Plant data (persistent)

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useAnalyzer } from '@/context/AnalyzerContext';
-import { Play, Loader2, CheckCircle, XCircle, MinusCircle, AlertCircle } from 'lucide-react';
+import { Play, Loader2, CheckCircle, XCircle, MinusCircle, AlertCircle, Clock } from 'lucide-react';
 import type { RecommendationFilter } from '@/lib/types';
 
 export function AnalysisSection() {
@@ -63,7 +63,7 @@ export function AnalysisSection() {
               ${isSelected('Action') ? 'border-amber-500' : 'border-transparent'}`}
           >
             <AlertCircle className="h-3.5 w-3.5" />
-            <span className="font-bold">{state.summary.to_publish + state.summary.to_unpublish}</span>
+            <span className="font-bold">{state.summary.to_publish + state.summary.to_publish_temp + state.summary.to_unpublish}</span>
             <span className="text-xs opacity-75">Action Needed</span>
           </button>
 
@@ -76,6 +76,17 @@ export function AnalysisSection() {
             <CheckCircle className="h-3.5 w-3.5" />
             <span className="font-bold">{state.summary.to_publish}</span>
             <span className="text-xs opacity-75">Publish</span>
+          </button>
+
+          {/* To Publish - TEMP */}
+          <button
+            onClick={() => handleFilterClick('Publish - TEMP')}
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1 rounded-md text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 shadow-sm hover:shadow-md bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400 border-2
+              ${isSelected('Publish - TEMP') ? 'border-yellow-500' : 'border-transparent'}`}
+          >
+            <Clock className="h-3.5 w-3.5" />
+            <span className="font-bold">{state.summary.to_publish_temp}</span>
+            <span className="text-xs opacity-75">Publish - TEMP</span>
           </button>
 
           {/* To Unpublish */}

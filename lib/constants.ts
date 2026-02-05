@@ -6,6 +6,9 @@ export const PUBLISH_THRESHOLD = 90;
 // Threshold for recommending unpublish (>= 50% out of stock)
 export const UNPUBLISH_THRESHOLD = 50;
 
+// Threshold for recommending temporary publish for inactive/discontinued items (>= 50% inventory coverage)
+export const TEMP_PUBLISH_THRESHOLD = 50;
+
 // Status values that indicate a product should be unpublished
 export const INACTIVE_STATUSES = ['Inactive', 'Discontinued'];
 
