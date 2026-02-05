@@ -3,8 +3,8 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // UPDATE THESE PATHS to match your SFTP structure
 const CSV_FILES = [
-  '/v_dim_plant.csv',
-  '/v_dim_product.csv',
+  './v_dim_plant.csv',
+  './v_dim_product.csv',
 ];
 
 async function main() {
