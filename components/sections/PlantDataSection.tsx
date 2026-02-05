@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileUploadButton } from '@/components/FileUploadButton';
+import { R2FetchButton } from '@/components/R2FetchButton';
 import { useAnalyzer } from '@/context/AnalyzerContext';
 import { parsePlantCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
@@ -78,6 +79,12 @@ export function PlantDataSection() {
           onDismissStatus={() => dismissFileStatus('plant')}
           isLoading={isLoading}
           helperText="You can Export from Snowflake"
+        />
+        <R2FetchButton
+          filename="dim_plant.csv"
+          label="Or Download from Snowflake:"
+          onFetchedFile={handleFileSelect}
+          disabled={isLoading}
         />
 
         {state.plantStatus.loaded && (

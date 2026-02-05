@@ -9,9 +9,11 @@ import type { InventoryRecord, StatusRecord } from '@/lib/types';
 
 interface CTFetchButtonProps {
   onComplete: (inventory: InventoryRecord[], status: StatusRecord[]) => void;
+  noWrapper?: boolean;
+  inlineLabel?: string;
 }
 
-export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
+export function CTFetchButton({ onComplete, noWrapper, inlineLabel }: CTFetchButtonProps) {
   const {
     isConfigured,
     isFetching,
@@ -29,12 +31,25 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
   }
 
   // Wrapper with label text
-  const wrapper = (content: React.ReactNode) => (
-    <div className="pt-3 border-t mt-3">
-      <p className="text-xs text-muted-foreground mb-2">Or Download Inventory & Status Automatically:</p>
-      {content}
-    </div>
-  );
+  const wrapper = (content: React.ReactNode) => {
+    if (noWrapper) {
+      if (inlineLabel) {
+        return (
+          <div className="inline-flex flex-col gap-1">
+            {content}
+            <p className="text-xs text-muted-foreground">{inlineLabel}</p>
+          </div>
+        );
+      }
+      return content;
+    }
+    return (
+      <div className="pt-3 border-t mt-3">
+        <p className="text-xs text-muted-foreground mb-2">Or Download Inventory & Status Automatically:</p>
+        {content}
+      </div>
+    );
+  };
 
   // Error state
   if (error) {

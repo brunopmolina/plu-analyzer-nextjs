@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileUploadButton } from '@/components/FileUploadButton';
 import { CTFetchButton } from '@/components/CTFetchButton';
+import { R2FetchButton } from '@/components/R2FetchButton';
 import { useAnalyzer } from '@/context/AnalyzerContext';
 import { parsePlantCSV, parseInventoryCSV, parseStatusCSV, parseProductCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
@@ -158,6 +159,12 @@ export function MobileFilesSection() {
             isLoading={loadingFile === 'plant'}
             helperText="You can Export from Snowflake"
           />
+          <R2FetchButton
+            filename="dim_plant.csv"
+            label="Or Download from Snowflake:"
+            onFetchedFile={handlePlantSelect}
+            disabled={loadingFile !== null}
+          />
           {state.plantStatus.loaded && (
             <div className="flex items-center justify-between gap-2 p-2 rounded-md bg-muted/50">
               <div className="text-sm">
@@ -226,6 +233,12 @@ export function MobileFilesSection() {
               helperText="You can Export from Snowflake"
             />
           </div>
+          <R2FetchButton
+            filename="dim_product.csv"
+            label="Or Download Product Data from Snowflake:"
+            onFetchedFile={handleProductSelect}
+            disabled={loadingFile !== null}
+          />
         </div>
 
         {/* CT Fetch section - only shows if configured */}

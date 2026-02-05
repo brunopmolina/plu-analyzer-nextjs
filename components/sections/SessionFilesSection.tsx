@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileUploadButton } from '@/components/FileUploadButton';
 import { CTFetchButton } from '@/components/CTFetchButton';
+import { R2FetchButton } from '@/components/R2FetchButton';
 import { useAnalyzer } from '@/context/AnalyzerContext';
 import { parseInventoryCSV, parseStatusCSV, parseProductCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
@@ -159,16 +160,31 @@ export function SessionFilesSection() {
           />
         </div>
 
-        {/* CT Fetch section - only shows if configured */}
-        <CTFetchButton
-          onComplete={(inventory, status) => {
-            setInventoryData(inventory, 'CommerceTools API');
-            setStatusData(status, 'CommerceTools API');
-            toast.success('Data loaded from CommerceTools', {
-              description: `${inventory.length.toLocaleString()} inventory records, ${status.length.toLocaleString()} status records`,
-            });
-          }}
-        />
+        {/* Download buttons */}
+        <div className="pt-3 border-t mt-3">
+          <p className="text-xs text-muted-foreground mb-2">Or Download Automatically:</p>
+          <div className="flex flex-wrap items-start gap-4">
+            <R2FetchButton
+              filename="dim_product.csv"
+              label=""
+              onFetchedFile={handleProductSelect}
+              disabled={loadingFile !== null}
+              noWrapper
+              inlineLabel="Download Product Data from Snowflake"
+            />
+            <CTFetchButton
+              noWrapper
+              inlineLabel="Download Inventory & Status Data from CT"
+              onComplete={(inventory, status) => {
+                setInventoryData(inventory, 'CommerceTools API');
+                setStatusData(status, 'CommerceTools API');
+                toast.success('Data loaded from CommerceTools', {
+                  description: `${inventory.length.toLocaleString()} inventory records, ${status.length.toLocaleString()} status records`,
+                });
+              }}
+            />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
