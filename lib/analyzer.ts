@@ -87,6 +87,22 @@ export function analyzePLUs(
 
   // Create inventory lookup: PLU -> Set of stores with inventory > 0
   const inventoryByPLU = new Map<string, Set<string>>();
+  // Track inventory quantities for DS Beltsville (9801) and DS Long Island (9803)
+  const inv9801ByPLU = new Map<string, number>();
+  const inv9803ByPLU = new Map<string, number>();
+  for (const row of inventoryData) {
+    const sku = String(row.sku);
+    const storeKey = String(row['supplyChannel.key']);
+    const qty = Number(row.availableQuantity) || 0;
+
+    // Track DS store inventory from full inventory data (not just active stores)
+    if (storeKey === '9801') {
+      inv9801ByPLU.set(sku, (inv9801ByPLU.get(sku) ?? 0) + qty);
+    }
+    if (storeKey === '9803') {
+      inv9803ByPLU.set(sku, (inv9803ByPLU.get(sku) ?? 0) + qty);
+    }
+  }
   for (const row of activeInventory) {
     const sku = String(row.sku);
     const storeKey = String(row['supplyChannel.key']);
@@ -165,6 +181,8 @@ export function analyzePLUs(
       'Inventory %': Math.round(inventoryPct * 10) / 10, // Round to 1 decimal
       'Stores w/ Inventory': storesWithInventory,
       'Total Active Stores': totalActiveStores,
+      'Inv 9801': inv9801ByPLU.get(plu) ?? 0,
+      'Inv 9803': inv9803ByPLU.get(plu) ?? 0,
       Recommendation: recommendation,
     });
   }

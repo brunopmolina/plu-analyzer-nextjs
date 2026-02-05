@@ -32,6 +32,8 @@ export function resultsToCSV(results: AnalysisResult[]): string {
     'Inventory %',
     'Stores w/ Inventory',
     'Total Active Stores',
+    'Inv 9801',
+    'Inv 9803',
     'Recommendation',
   ];
 

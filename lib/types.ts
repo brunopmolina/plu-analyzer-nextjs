@@ -35,6 +35,8 @@ export interface AnalysisResult {
   'Inventory %': number;
   'Stores w/ Inventory': number;
   'Total Active Stores': number;
+  'Inv 9801': number;
+  'Inv 9803': number;
   Recommendation: 'Publish' | 'Unpublish' | 'No Action';
 }
 

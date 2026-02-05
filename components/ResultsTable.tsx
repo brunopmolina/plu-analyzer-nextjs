@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, X } from 'lucide-react';
+import { ArrowUp, ArrowDown, X } from 'lucide-react';
 import type { AnalysisResult } from '@/lib/types';
 
 interface ResultsTableProps {
@@ -56,6 +56,8 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
     const sapStatuses = [...new Set(data.map((r) => r['SAP Status']).filter(Boolean))].sort();
     const published = ['Yes', 'No'];
     const inventoryPcts = [...new Set(data.map((r) => r['Inventory %']))].sort((a, b) => a - b);
+    const inv9801Values = [...new Set(data.map((r) => r['Inv 9801']))].sort((a, b) => a - b);
+    const inv9803Values = [...new Set(data.map((r) => r['Inv 9803']))].sort((a, b) => a - b);
     const recommendations = ['Unpublish', 'Publish', 'No Action'];
 
     return {
@@ -64,6 +66,8 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
       'SAP Status': sapStatuses,
       Published: published,
       'Inventory %': inventoryPcts,
+      'Inv 9801': inv9801Values,
+      'Inv 9803': inv9803Values,
       Recommendation: recommendations,
     };
   }, [data]);
@@ -79,7 +83,8 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               PLU
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -105,7 +110,8 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               SAP Status
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -122,7 +128,8 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               Published
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -144,12 +151,57 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               Inventory %
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
         cell: ({ row }) => (
           <div className="text-center">{row.getValue('Inventory %')}%</div>
+        ),
+        filterFn: (row, columnId, filterValue) => {
+          const value = row.getValue(columnId) as number;
+          return value === Number(filterValue);
+        },
+      },
+      {
+        accessorKey: 'Inv 9801',
+        header: ({ column }) => (
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              <span className="flex flex-col items-center leading-tight"><span>9801</span><span className="text-xs font-normal">Beltsville</span></span>
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
+            </Button>
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="text-center">{(row.getValue('Inv 9801') as number).toLocaleString()}</div>
+        ),
+        filterFn: (row, columnId, filterValue) => {
+          const value = row.getValue(columnId) as number;
+          return value === Number(filterValue);
+        },
+      },
+      {
+        accessorKey: 'Inv 9803',
+        header: ({ column }) => (
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              <span className="flex flex-col items-center leading-tight"><span>9803</span><span className="text-xs font-normal">LIC</span></span>
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
+            </Button>
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="text-center">{(row.getValue('Inv 9803') as number).toLocaleString()}</div>
         ),
         filterFn: (row, columnId, filterValue) => {
           const value = row.getValue(columnId) as number;
@@ -165,7 +217,8 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               Recommendation
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -322,6 +375,46 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
               {uniqueValues['Inventory %'].map((value) => (
                 <SelectItem key={String(value)} value={String(value)}>
                   {value}%
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground">9801 Beltsville</label>
+          <Select
+            value={getFilterValue('Inv 9801') || '__all__'}
+            onValueChange={(value) => setFilterValue('Inv 9801', value)}
+          >
+            <SelectTrigger className="h-8 w-full md:w-36">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              <SelectItem value="__all__">All ({uniqueValues['Inv 9801'].length})</SelectItem>
+              {uniqueValues['Inv 9801'].map((value) => (
+                <SelectItem key={String(value)} value={String(value)}>
+                  {value.toLocaleString()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground">9803 LIC</label>
+          <Select
+            value={getFilterValue('Inv 9803') || '__all__'}
+            onValueChange={(value) => setFilterValue('Inv 9803', value)}
+          >
+            <SelectTrigger className="h-8 w-full md:w-36">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              <SelectItem value="__all__">All ({uniqueValues['Inv 9803'].length})</SelectItem>
+              {uniqueValues['Inv 9803'].map((value) => (
+                <SelectItem key={String(value)} value={String(value)}>
+                  {value.toLocaleString()}
                 </SelectItem>
               ))}
             </SelectContent>

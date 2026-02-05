@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, X } from 'lucide-react';
+import { ArrowUp, ArrowDown, X } from 'lucide-react';
 import type { FilteredOutResult } from '@/lib/types';
 
 interface FilteredOutTableProps {
@@ -80,7 +80,8 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               PLU
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -106,7 +107,8 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               SAP Status
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -123,7 +125,8 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               Published
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -145,7 +148,8 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               Inventory %
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -166,7 +170,8 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               Channel
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
@@ -183,7 +188,8 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
               Would Recommend
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              {column.getIsSorted() === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         ),
