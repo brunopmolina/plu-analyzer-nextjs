@@ -42,10 +42,10 @@ export default function Home() {
           {/* Desktop: File uploads row - Plant on left, Session files on right */}
           <div className="grid gap-4 md:grid-cols-[280px_1fr]">
             <PlantDataSection />
-            <div className="space-y-3 h-full lg:h-auto">
+            <div className="space-y-3 lg:flex lg:flex-col">
               <SessionFilesSection />
               {/* Analysis bar inside right column on large screens */}
-              <div className="hidden lg:block">
+              <div className="hidden lg:block lg:mt-auto">
                 <AnalysisSection />
               </div>
             </div>
