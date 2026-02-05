@@ -36,11 +36,12 @@ interface ResultsTableProps {
   description?: string;
 }
 
-// Custom sort order for Recommendation: Unpublish first, then Publish, then No Action
+// Custom sort order for Recommendation: Unpublish first, then Publish - TEMP, then Publish, then No Action
 const recommendationOrder: Record<string, number> = {
   'Unpublish': 0,
-  'Publish': 1,
-  'No Action': 2,
+  'Publish - TEMP': 1,
+  'Publish': 2,
+  'No Action': 3,
 };
 
 export function ResultsTable({ data, description }: ResultsTableProps) {
@@ -58,7 +59,7 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
     const inventoryPcts = [...new Set(data.map((r) => r['Inventory %']))].sort((a, b) => a - b);
     const inv9801Values = [...new Set(data.map((r) => r['Inv 9801']))].sort((a, b) => a - b);
     const inv9803Values = [...new Set(data.map((r) => r['Inv 9803']))].sort((a, b) => a - b);
-    const recommendations = ['Unpublish', 'Publish', 'No Action'];
+    const recommendations = ['Unpublish', 'Publish - TEMP', 'Publish', 'No Action'];
 
     return {
       PLU: plus,
@@ -226,6 +227,7 @@ export function ResultsTable({ data, description }: ResultsTableProps) {
           const recommendation = row.getValue('Recommendation') as string;
           const variant = {
             Publish: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+            'Publish - TEMP': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
             Unpublish: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
             'No Action': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
           }[recommendation];

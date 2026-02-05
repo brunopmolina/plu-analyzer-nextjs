@@ -287,7 +287,7 @@ export function AnalyzerProvider({ children }: { children: React.ReactNode }) {
     if (!state.results) return null;
     if (state.filter === 'All') return state.results;
     if (state.filter === 'Action') {
-      return state.results.filter((r) => r.Recommendation === 'Publish' || r.Recommendation === 'Unpublish');
+      return state.results.filter((r) => r.Recommendation === 'Publish' || r.Recommendation === 'Publish - TEMP' || r.Recommendation === 'Unpublish');
     }
     return state.results.filter((r) => r.Recommendation === state.filter);
   }, [state.results, state.filter]);

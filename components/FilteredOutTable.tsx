@@ -36,10 +36,11 @@ interface FilteredOutTableProps {
   description?: string;
 }
 
-// Custom sort order for Would Recommend: Unpublish first, then Publish
+// Custom sort order for Would Recommend: Unpublish first, then Publish - TEMP, then Publish
 const recommendationOrder: Record<string, number> = {
   'Unpublish': 0,
-  'Publish': 1,
+  'Publish - TEMP': 1,
+  'Publish': 2,
 };
 
 export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
@@ -56,7 +57,7 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
     const published = ['Yes', 'No'];
     const inventoryPcts = [...new Set(data.map((r) => r['Inventory %']))].sort((a, b) => a - b);
     const channels = [...new Set(data.map((r) => r['Available In Channel']).filter(Boolean))].sort();
-    const recommendations = ['Unpublish', 'Publish'];
+    const recommendations = ['Unpublish', 'Publish - TEMP', 'Publish'];
 
     return {
       PLU: plus,
@@ -197,6 +198,7 @@ export function FilteredOutTable({ data, description }: FilteredOutTableProps) {
           const recommendation = row.getValue('Would Recommend') as string;
           const variant = {
             Publish: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+            'Publish - TEMP': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
             Unpublish: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
           }[recommendation];
 
