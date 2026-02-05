@@ -1,5 +1,5 @@
 import type { CTTokenResponse, CachedToken } from './types';
-import { subrequestLogger } from './logger';
+import type { SubrequestLogger } from './logger';
 
 export function normalizeUrl(url: string): string {
   // Remove protocol prefix if present
@@ -18,7 +18,7 @@ export function isConfigured(): boolean {
   );
 }
 
-export async function getAccessToken(): Promise<string> {
+export async function getAccessToken(logger?: SubrequestLogger): Promise<string> {
   // Return cached token if still valid (with 60s buffer)
   if (cachedToken && Date.now() < cachedToken.expiresAt - 60000) {
     return cachedToken.accessToken;
@@ -51,7 +51,7 @@ export async function getAccessToken(): Promise<string> {
     },
     body: `grant_type=client_credentials&scope=${encodeURIComponent(scopes)}`,
   });
-  subrequestLogger.log('auth', 'oauth_token');
+  logger?.log('auth', 'oauth_token');
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

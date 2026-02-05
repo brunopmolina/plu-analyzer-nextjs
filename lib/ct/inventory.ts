@@ -1,40 +1,15 @@
 import { getAccessToken, getProjectKey, getApiUrl } from './auth';
 import type { CTInventoryPagedResult, CTInventoryRecord, ChannelMap } from './types';
-import { subrequestLogger } from './logger';
-
-async function fetchWithRetry<T>(
-  url: string,
-  options: RequestInit,
-  maxRetries = 3
-): Promise<T> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    const response = await fetch(url, options);
-    subrequestLogger.log('inventory', `fetch_page${attempt > 1 ? `_retry${attempt}` : ''}`);
-
-    if (response.ok) {
-      return response.json();
-    }
-
-    const status = response.status;
-    // Retry on 429 (rate limit) or 503 (service unavailable)
-    if ((status === 429 || status === 503) && attempt < maxRetries) {
-      const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-      await new Promise(resolve => setTimeout(resolve, delay));
-      continue;
-    }
-
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(`Request failed: ${errorData.message || response.statusText}`);
-  }
-  throw new Error('Max retries exceeded');
-}
+import type { SubrequestLogger } from './logger';
+import { fetchWithRetry } from './fetch';
 
 async function fetchInventoryBatch(
   skus: string[],
   projectKey: string,
   apiUrl: string,
   accessToken: string,
-  channelMap: ChannelMap
+  channelMap: ChannelMap,
+  logger: SubrequestLogger
 ): Promise<CTInventoryRecord[]> {
   const inventory: CTInventoryRecord[] = [];
   const skuList = skus.map(sku => `"${sku}"`).join(',');
@@ -52,9 +27,12 @@ async function fetchInventoryBatch(
 
     const url = `https://${apiUrl}/${projectKey}/inventory?${params}`;
 
-    const data = await fetchWithRetry<CTInventoryPagedResult>(url, {
-      headers: { 'Authorization': `Bearer ${accessToken}` },
-    });
+    const data = await fetchWithRetry<CTInventoryPagedResult>(
+      url,
+      { headers: { 'Authorization': `Bearer ${accessToken}` } },
+      logger,
+      'inventory'
+    );
 
     total = data.total;
 
@@ -110,6 +88,7 @@ export interface FetchInventoryProgress {
 export async function fetchInventoryForSkus(
   skus: string[],
   channelMap: ChannelMap,
+  logger: SubrequestLogger,
   onProgress?: (progress: FetchInventoryProgress) => void
 ): Promise<CTInventoryRecord[]> {
   if (skus.length === 0) {
@@ -118,7 +97,7 @@ export async function fetchInventoryForSkus(
 
   const projectKey = getProjectKey();
   const apiUrl = getApiUrl();
-  const accessToken = await getAccessToken();
+  const accessToken = await getAccessToken(logger);
 
   // Batch SKUs - keep under 10k offset limit (SKUs × channels < 10,000)
   // With ~146 channels: 10,000 / 146 ≈ 68 max SKUs per batch, using 50 for safety
@@ -143,7 +122,8 @@ export async function fetchInventoryForSkus(
         projectKey,
         apiUrl,
         accessToken,
-        channelMap
+        channelMap,
+        logger
       );
       completedBatches++;
       onProgress?.({ completedBatches, totalBatches: batches.length });
@@ -151,7 +131,7 @@ export async function fetchInventoryForSkus(
     }
   );
 
-  const summary = subrequestLogger.getSummary();
+  const summary = logger.getSummary();
   console.log(`[Inventory] Fetch complete. Total subrequests: ${summary.total}`, summary.byModule);
 
   return batchResults.flat();

@@ -8,7 +8,7 @@ export interface SubrequestLog {
   timestamp: number;
 }
 
-class SubrequestLogger {
+export class SubrequestLogger {
   private logs: SubrequestLog[] = [];
   private totalCount = 0;
 
@@ -23,14 +23,6 @@ class SubrequestLogger {
     console.log(`[Subrequest] ${module}:${operation} (+${count}) | Total: ${this.totalCount}`);
   }
 
-  getTotal(): number {
-    return this.totalCount;
-  }
-
-  getLogs(): SubrequestLog[] {
-    return [...this.logs];
-  }
-
   getSummary(): { total: number; byModule: Record<string, number> } {
     const byModule: Record<string, number> = {};
     for (const log of this.logs) {
@@ -41,12 +33,9 @@ class SubrequestLogger {
       byModule,
     };
   }
-
-  reset(): void {
-    this.logs = [];
-    this.totalCount = 0;
-  }
 }
 
-// Singleton instance for tracking subrequests within a single request invocation
-export const subrequestLogger = new SubrequestLogger();
+// Factory function to create a new logger instance per request
+export function createSubrequestLogger(): SubrequestLogger {
+  return new SubrequestLogger();
+}
