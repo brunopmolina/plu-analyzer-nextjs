@@ -5,6 +5,7 @@ import { fetchSupplyChannels } from '@/lib/ct/channels';
 import { fetchUSProducts, getSkusFromProducts } from '@/lib/ct/products';
 import { fetchInventoryForSkus } from '@/lib/ct/inventory';
 import { transformToStatusRecords, transformToInventoryRecords } from '@/lib/ct/transform';
+import { createSubrequestLogger } from '@/lib/ct/logger';
 import type { CTSSEEvent } from '@/lib/ct/types';
 
 function sendSSE(controller: ReadableStreamDefaultController, event: CTSSEEvent) {
@@ -23,6 +24,10 @@ export async function POST() {
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        // Create a new logger instance for this request to avoid cross-request data corruption
+        const logger = createSubrequestLogger();
+        console.log('[CT Fetch] Starting CommerceTools data fetch...');
+
         // Step 1: Authenticate
         sendSSE(controller, {
           type: 'progress',
@@ -38,7 +43,7 @@ export async function POST() {
           message: 'Fetching supply channels...',
           percent: 10,
         });
-        const channelMap = await fetchSupplyChannels();
+        const channelMap = await fetchSupplyChannels(logger);
         const channelCount = Object.keys(channelMap).length;
         sendSSE(controller, {
           type: 'progress',
@@ -54,7 +59,7 @@ export async function POST() {
           message: 'Fetching US products...',
           percent: 20,
         });
-        const products = await fetchUSProducts((progress) => {
+        const products = await fetchUSProducts(logger, (progress) => {
           const percent = 20 + Math.floor((progress.fetched / progress.total) * 30);
           sendSSE(controller, {
             type: 'progress',
@@ -78,7 +83,7 @@ export async function POST() {
           message: `Fetching inventory for ${skus.length.toLocaleString()} SKUs...`,
           percent: 55,
         });
-        const inventory = await fetchInventoryForSkus(skus, channelMap, (progress) => {
+        const inventory = await fetchInventoryForSkus(skus, channelMap, logger, (progress) => {
           const percent = 55 + Math.floor((progress.completedBatches / progress.totalBatches) * 40);
           sendSSE(controller, {
             type: 'progress',
@@ -92,12 +97,17 @@ export async function POST() {
         const statusRecords = transformToStatusRecords(products);
         const inventoryRecords = transformToInventoryRecords(inventory);
 
+        // Get subrequest summary
+        const subrequestSummary = logger.getSummary();
+        console.log(`[CT Fetch] Complete. Total subrequests: ${subrequestSummary.total}`, subrequestSummary.byModule);
+
         // Send complete event with the data
         sendSSE(controller, {
           type: 'complete',
           data: {
             inventoryCount: inventoryRecords.length,
             statusCount: statusRecords.length,
+            subrequests: subrequestSummary,
           },
         });
 

@@ -1,31 +1,7 @@
 import { getAccessToken, getProjectKey, getApiUrl } from './auth';
 import type { CTProductPagedResult, CTProductInfo } from './types';
-
-async function fetchWithRetry<T>(
-  url: string,
-  options: RequestInit,
-  maxRetries = 3
-): Promise<T> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    const response = await fetch(url, options);
-
-    if (response.ok) {
-      return response.json();
-    }
-
-    const status = response.status;
-    // Retry on 429 (rate limit) or 503 (service unavailable)
-    if ((status === 429 || status === 503) && attempt < maxRetries) {
-      const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-      await new Promise(resolve => setTimeout(resolve, delay));
-      continue;
-    }
-
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(`Request failed: ${errorData.message || response.statusText}`);
-  }
-  throw new Error('Max retries exceeded');
-}
+import type { SubrequestLogger } from './logger';
+import { fetchWithRetry } from './fetch';
 
 export interface FetchProductsProgress {
   fetched: number;
@@ -33,11 +9,12 @@ export interface FetchProductsProgress {
 }
 
 export async function fetchUSProducts(
+  logger: SubrequestLogger,
   onProgress?: (progress: FetchProductsProgress) => void
 ): Promise<CTProductInfo[]> {
   const projectKey = getProjectKey();
   const apiUrl = getApiUrl();
-  const accessToken = await getAccessToken();
+  const accessToken = await getAccessToken(logger);
 
   const products: CTProductInfo[] = [];
   let offset = 0;
@@ -54,11 +31,12 @@ export async function fetchUSProducts(
 
     const url = `https://${apiUrl}/${projectKey}/product-projections?${params}`;
 
-    const data = await fetchWithRetry<CTProductPagedResult>(url, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
+    const data = await fetchWithRetry<CTProductPagedResult>(
+      url,
+      { headers: { 'Authorization': `Bearer ${accessToken}` } },
+      logger,
+      'products'
+    );
 
     total = data.total;
 

@@ -1,38 +1,15 @@
 import { getAccessToken, getProjectKey, getApiUrl } from './auth';
 import type { CTInventoryPagedResult, CTInventoryRecord, ChannelMap } from './types';
-
-async function fetchWithRetry<T>(
-  url: string,
-  options: RequestInit,
-  maxRetries = 3
-): Promise<T> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    const response = await fetch(url, options);
-
-    if (response.ok) {
-      return response.json();
-    }
-
-    const status = response.status;
-    // Retry on 429 (rate limit) or 503 (service unavailable)
-    if ((status === 429 || status === 503) && attempt < maxRetries) {
-      const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-      await new Promise(resolve => setTimeout(resolve, delay));
-      continue;
-    }
-
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(`Request failed: ${errorData.message || response.statusText}`);
-  }
-  throw new Error('Max retries exceeded');
-}
+import type { SubrequestLogger } from './logger';
+import { fetchWithRetry } from './fetch';
 
 async function fetchInventoryBatch(
   skus: string[],
   projectKey: string,
   apiUrl: string,
   accessToken: string,
-  channelMap: ChannelMap
+  channelMap: ChannelMap,
+  logger: SubrequestLogger
 ): Promise<CTInventoryRecord[]> {
   const inventory: CTInventoryRecord[] = [];
   const skuList = skus.map(sku => `"${sku}"`).join(',');
@@ -50,9 +27,12 @@ async function fetchInventoryBatch(
 
     const url = `https://${apiUrl}/${projectKey}/inventory?${params}`;
 
-    const data = await fetchWithRetry<CTInventoryPagedResult>(url, {
-      headers: { 'Authorization': `Bearer ${accessToken}` },
-    });
+    const data = await fetchWithRetry<CTInventoryPagedResult>(
+      url,
+      { headers: { 'Authorization': `Bearer ${accessToken}` } },
+      logger,
+      'inventory'
+    );
 
     total = data.total;
 
@@ -75,6 +55,31 @@ async function fetchInventoryBatch(
   return inventory;
 }
 
+// Process batches with concurrency limit
+async function processWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  processor: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = [];
+  let currentIndex = 0;
+
+  async function processNext(): Promise<void> {
+    while (currentIndex < items.length) {
+      const index = currentIndex++;
+      const result = await processor(items[index], index);
+      results[index] = result;
+    }
+  }
+
+  const workers = Array(Math.min(concurrency, items.length))
+    .fill(null)
+    .map(() => processNext());
+
+  await Promise.all(workers);
+  return results;
+}
+
 export interface FetchInventoryProgress {
   completedBatches: number;
   totalBatches: number;
@@ -83,6 +88,7 @@ export interface FetchInventoryProgress {
 export async function fetchInventoryForSkus(
   skus: string[],
   channelMap: ChannelMap,
+  logger: SubrequestLogger,
   onProgress?: (progress: FetchInventoryProgress) => void
 ): Promise<CTInventoryRecord[]> {
   if (skus.length === 0) {
@@ -91,29 +97,42 @@ export async function fetchInventoryForSkus(
 
   const projectKey = getProjectKey();
   const apiUrl = getApiUrl();
-  const accessToken = await getAccessToken();
+  const accessToken = await getAccessToken(logger);
 
-  // Batch SKUs - larger batches to reduce total requests for Cloudflare limits
-  // Using 100 SKUs per batch to minimize subrequests
-  const batchSize = 100;
+  // Batch SKUs - keep under 10k offset limit (SKUs × channels < 10,000)
+  // With ~146 channels: 10,000 / 146 ≈ 68 max SKUs per batch, using 50 for safety
+  const batchSize = 50;
   const batches: string[][] = [];
   for (let i = 0; i < skus.length; i += batchSize) {
     batches.push(skus.slice(i, i + batchSize));
   }
 
-  // Process batches sequentially to avoid Cloudflare subrequest limits
-  const allResults: CTInventoryRecord[] = [];
-  for (let i = 0; i < batches.length; i++) {
-    const results = await fetchInventoryBatch(
-      batches[i],
-      projectKey,
-      apiUrl,
-      accessToken,
-      channelMap
-    );
-    allResults.push(...results);
-    onProgress?.({ completedBatches: i + 1, totalBatches: batches.length });
-  }
+  let completedBatches = 0;
 
-  return allResults;
+  // Process batches in parallel (10 concurrent requests)
+  const concurrency = 10;
+  console.log(`[Inventory] Starting parallel fetch: ${batches.length} batches with concurrency ${concurrency}`);
+
+  const batchResults = await processWithConcurrency(
+    batches,
+    concurrency,
+    async (batchSkus) => {
+      const results = await fetchInventoryBatch(
+        batchSkus,
+        projectKey,
+        apiUrl,
+        accessToken,
+        channelMap,
+        logger
+      );
+      completedBatches++;
+      onProgress?.({ completedBatches, totalBatches: batches.length });
+      return results;
+    }
+  );
+
+  const summary = logger.getSummary();
+  console.log(`[Inventory] Fetch complete. Total subrequests: ${summary.total}`, summary.byModule);
+
+  return batchResults.flat();
 }

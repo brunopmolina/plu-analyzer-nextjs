@@ -1,10 +1,11 @@
 import { getAccessToken, getProjectKey, getApiUrl } from './auth';
 import type { CTChannelPagedResult, ChannelMap } from './types';
+import type { SubrequestLogger } from './logger';
 
-export async function fetchSupplyChannels(): Promise<ChannelMap> {
+export async function fetchSupplyChannels(logger: SubrequestLogger): Promise<ChannelMap> {
   const projectKey = getProjectKey();
   const apiUrl = getApiUrl();
-  const accessToken = await getAccessToken();
+  const accessToken = await getAccessToken(logger);
 
   const channelMap: ChannelMap = {};
   let offset = 0;
@@ -25,6 +26,7 @@ export async function fetchSupplyChannels(): Promise<ChannelMap> {
         'Authorization': `Bearer ${accessToken}`,
       },
     });
+    logger.log('channels', 'fetch_page');
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
