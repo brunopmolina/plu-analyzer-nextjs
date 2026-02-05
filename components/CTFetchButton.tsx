@@ -31,7 +31,7 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
   // Wrapper with label text
   const wrapper = (content: React.ReactNode) => (
     <div className="pt-3 border-t mt-3">
-      <p className="text-xs text-muted-foreground mb-2">Or fetch Inventory & Status Automatically:</p>
+      <p className="text-xs text-muted-foreground mb-2">Or Download Inventory & Status Automatically:</p>
       {content}
     </div>
   );
@@ -47,7 +47,7 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
           className="h-8 text-xs"
         >
           <RefreshCw className="h-4 w-4" />
-          <span className="ml-1.5">Retry Fetch</span>
+          <span className="ml-1.5">Retry Download</span>
         </Button>
         <div className="text-xs text-red-500 leading-tight">{error}</div>
       </div>
@@ -65,7 +65,7 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
           className="h-8 text-xs"
         >
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="ml-1.5">Fetching from CT...</span>
+          <span className="ml-1.5">Downloading from CT...</span>
         </Button>
         <div className="flex items-center gap-2">
           <Progress value={progress.percent} className="h-1.5 flex-1" />
@@ -94,7 +94,7 @@ export function CTFetchButton({ onComplete }: CTFetchButtonProps) {
       className="h-8 text-xs"
     >
       <CloudDownload className="h-4 w-4" />
-      <span className="ml-1.5">Fetch from CommerceTools</span>
+      <span className="ml-1.5">Download from CommerceTools</span>
     </Button>
   );
 }
