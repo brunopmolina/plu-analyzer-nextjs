@@ -139,60 +139,68 @@ export function MobileFilesSection() {
   };
 
   return (
-    <Card className="lg:hidden">
+    <Card className="md:hidden">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="flex items-center gap-2 text-base shrink-0">
-            <FolderOpen className="h-4 w-4" />
-            Data Files
-          </CardTitle>
-          <div className="flex flex-wrap justify-end gap-1.5">
-            {state.plantStatus.loaded && (
-              <Button variant="destructive" size="sm" onClick={clearStoredPlantData} className="h-7 px-2 text-xs">
-                <Trash2 className="h-3 w-3 min-[400px]:mr-1" />
-                <span className="hidden min-[400px]:inline">Plant</span>
-              </Button>
-            )}
-            {hasAnySessionData && (
-              <Button variant="destructive" size="sm" onClick={clearSession} className="h-7 px-2 text-xs">
-                <RefreshCw className="h-3 w-3 min-[400px]:mr-1" />
-                <span className="hidden min-[400px]:inline">Session</span>
-              </Button>
-            )}
-          </div>
-        </div>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <FolderOpen className="h-4 w-4" />
+          Data Files
+        </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 space-y-3">
+      <CardContent className="pt-0 space-y-4">
         {/* Plant Data */}
-        <div>
-          <p className="text-xs text-muted-foreground mb-1.5">Plant Data (persistent)</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <FileUploadButton
-                label="v_dim_plant.csv"
-                status={state.plantStatus}
-                onFileSelect={handlePlantSelect}
-                onDismissStatus={() => dismissFileStatus('plant')}
-                isLoading={loadingFile === 'plant'}
-                helperText="You can Export from Snowflake"
-              />
-            </div>
-            {state.plantStatus.loaded && (
-              <div className="flex items-center gap-2">
-                <div className="text-xs text-muted-foreground whitespace-nowrap">
-                  {state.activeStores.length} stores
-                  {state.plantMetadata && ` · ${formatDate(state.plantMetadata.last_updated)}`}
-                </div>
-                <StoreDescriptionsDialog />
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">Plant Data (persistent)</p>
+          <FileUploadButton
+            label="v_dim_plant.csv"
+            status={state.plantStatus}
+            onFileSelect={handlePlantSelect}
+            onDismissStatus={() => dismissFileStatus('plant')}
+            isLoading={loadingFile === 'plant'}
+            helperText="You can Export from Snowflake"
+          />
+          {state.plantStatus.loaded && (
+            <div className="flex items-center justify-between gap-2 p-2 rounded-md bg-muted/50">
+              <div className="text-sm">
+                <span className="font-medium">{state.activeStores.length} stores</span>
+                {state.plantMetadata && (
+                  <span className="text-muted-foreground ml-2 text-xs">
+                    {formatDate(state.plantMetadata.last_updated)}
+                  </span>
+                )}
               </div>
-            )}
-          </div>
+              <div className="flex items-center gap-2">
+                <StoreDescriptionsDialog />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearStoredPlantData}
+                  className="h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  title="Clear plant data"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Session Files */}
-        <div>
-          <p className="text-xs text-muted-foreground mb-1.5">Session Files</p>
-          <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-2">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Session Files</p>
+            {hasAnySessionData && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSession}
+                className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 min-[500px]:grid-cols-2 min-[700px]:grid-cols-3 gap-2">
             <FileUploadButton
               label="Inventory in CT.csv"
               status={state.inventoryStatus}

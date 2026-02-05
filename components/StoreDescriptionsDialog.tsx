@@ -103,7 +103,7 @@ export function StoreDescriptionsDialog() {
         <Button
           variant="default"
           size="sm"
-          className="h-8 text-xs w-full"
+          className="h-8 text-xs whitespace-nowrap"
           title="View store descriptions"
         >
           <Building2 className="h-4 w-4" />

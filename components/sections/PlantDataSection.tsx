@@ -60,20 +60,17 @@ export function PlantDataSection() {
   };
 
   return (
-    <Card className="hidden lg:block">
-      <CardHeader className="pb-2 lg:pb-3">
-        <div className="flex items-center justify-between lg:block">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Store className="h-4 w-4" />
-            Plant Data
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Persistent
-            <span className="hidden sm:inline"> across sessions</span>
-          </CardDescription>
-        </div>
+    <Card className="hidden md:block">
+      <CardHeader className="pb-2 md:pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Store className="h-4 w-4" />
+          Plant Data
+        </CardTitle>
+        <CardDescription className="text-xs">
+          Persistent across sessions
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 lg:space-y-3 pt-0">
+      <CardContent className="space-y-2 md:space-y-3 pt-0">
         <FileUploadButton
           label="v_dim_plant.csv"
           status={state.plantStatus}
@@ -93,12 +90,12 @@ export function PlantDataSection() {
                 </p>
               )}
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 [&_button]:w-full">
               <Button
                 variant="destructive"
                 size="sm"
                 onClick={clearStoredPlantData}
-                className="h-7 px-2 w-full"
+                className="h-7 px-2"
               >
                 <Trash2 className="h-3 w-3 mr-1" />
                 Clear

@@ -40,7 +40,7 @@ export default function Home() {
           <MobileFilesSection />
 
           {/* Desktop: File uploads row - Plant on left, Session files + Run on right */}
-          <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+          <div className="grid gap-4 md:grid-cols-[280px_1fr]">
             <PlantDataSection />
             <div className="space-y-3">
               <SessionFilesSection />
