@@ -116,7 +116,7 @@ export function SessionFilesSection() {
     state.productStatus.loaded;
 
   return (
-    <Card className="hidden md:block">
+    <Card className="hidden md:block h-full lg:h-auto">
       <CardHeader className="pb-2 lg:pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

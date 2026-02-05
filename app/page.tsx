@@ -20,7 +20,7 @@ export default function Home() {
               <Package className="h-6 w-6 text-primary shrink-0" />
               <div className="min-w-0">
                 <h1 className="text-base sm:text-xl font-bold leading-tight">Website Assortment Audit Tool</h1>
-                <p className="text-sm text-muted-foreground hidden sm:block">
+                <p className="text-sm text-muted-foreground hidden lg:block">
                   See items that should be Published or Unpublished based on pre-set Business criteria
                 </p>
               </div>
@@ -39,13 +39,21 @@ export default function Home() {
           {/* Mobile: Combined files card */}
           <MobileFilesSection />
 
-          {/* Desktop: File uploads row - Plant on left, Session files + Run on right */}
+          {/* Desktop: File uploads row - Plant on left, Session files on right */}
           <div className="grid gap-4 md:grid-cols-[280px_1fr]">
             <PlantDataSection />
-            <div className="space-y-3">
+            <div className="space-y-3 h-full lg:h-auto">
               <SessionFilesSection />
-              <AnalysisSection />
+              {/* Analysis bar inside right column on large screens */}
+              <div className="hidden lg:block">
+                <AnalysisSection />
+              </div>
             </div>
+          </div>
+
+          {/* Analysis bar - full width on medium/smaller screens */}
+          <div className="lg:hidden">
+            <AnalysisSection />
           </div>
           <ResultsSection />
         </div>
