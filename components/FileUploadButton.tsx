@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, Check, AlertCircle, Loader2, X } from 'lucide-react';
+import { Upload, Check, AlertCircle, Loader2, X, Download } from 'lucide-react';
 import type { FileUploadStatus } from '@/lib/types';
 
 interface FileUploadButtonProps {
@@ -10,6 +10,7 @@ interface FileUploadButtonProps {
   status: FileUploadStatus;
   onFileSelect: (file: File) => void;
   onDismissStatus?: () => void;
+  onDownload?: () => void;
   accept?: string;
   disabled?: boolean;
   isLoading?: boolean;
@@ -21,6 +22,7 @@ export function FileUploadButton({
   status,
   onFileSelect,
   onDismissStatus,
+  onDownload,
   accept = '.csv',
   disabled = false,
   isLoading = false,
@@ -143,6 +145,16 @@ export function FileUploadButton({
                 helperText
               )}
             </span>
+            {!isLoading && status.loaded && onDownload && (
+              <button
+                type="button"
+                onClick={onDownload}
+                className="p-0.5 hover:bg-muted rounded shrink-0 opacity-60 hover:opacity-100"
+                aria-label="Download CSV"
+              >
+                <Download className="h-3.5 w-3.5" />
+              </button>
+            )}
             {!isLoading && (status.error || status.loaded) && onDismissStatus && (
               <button
                 type="button"

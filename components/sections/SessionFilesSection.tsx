@@ -10,6 +10,7 @@ import { useAnalyzer } from '@/context/AnalyzerContext';
 import { parseInventoryCSV, parseStatusCSV, parseProductCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
 import { FileText, RefreshCw } from 'lucide-react';
+import { downloadRecordsAsCSV } from '@/lib/export';
 import { toast } from 'sonner';
 
 export function SessionFilesSection() {
@@ -139,6 +140,9 @@ export function SessionFilesSection() {
             status={state.inventoryStatus}
             onFileSelect={handleInventorySelect}
             onDismissStatus={() => dismissFileStatus('inventory')}
+            onDownload={() => {
+              if (state.inventoryData) downloadRecordsAsCSV(state.inventoryData, state.inventoryStatus.fileName ?? 'inventory.csv');
+            }}
             isLoading={loadingFile === 'inventory'}
             helperText="You can Export from CT"
           />
@@ -147,6 +151,9 @@ export function SessionFilesSection() {
             status={state.statusStatus}
             onFileSelect={handleStatusSelect}
             onDismissStatus={() => dismissFileStatus('status')}
+            onDownload={() => {
+              if (state.statusData) downloadRecordsAsCSV(state.statusData, state.statusStatus.fileName ?? 'status.csv');
+            }}
             isLoading={loadingFile === 'status'}
             helperText="You can Export from CT"
           />
@@ -155,6 +162,9 @@ export function SessionFilesSection() {
             status={state.productStatus}
             onFileSelect={handleProductSelect}
             onDismissStatus={() => dismissFileStatus('product')}
+            onDownload={() => {
+              if (state.productData) downloadRecordsAsCSV(state.productData, state.productStatus.fileName ?? 'v_dim_product.csv');
+            }}
             isLoading={loadingFile === 'product'}
             helperText="You can Export from Snowflake"
           />
@@ -164,14 +174,6 @@ export function SessionFilesSection() {
         <div className="pt-3 border-t mt-3">
           <p className="text-xs text-muted-foreground mb-2">Or Download Automatically:</p>
           <div className="flex flex-wrap items-start gap-4">
-            <R2FetchButton
-              filename="dim_product.csv"
-              label=""
-              onFetchedFile={handleProductSelect}
-              disabled={loadingFile !== null}
-              noWrapper
-              inlineLabel="Download Product Data from Snowflake"
-            />
             <CTFetchButton
               noWrapper
               inlineLabel="Download Inventory & Status Data from CT"
@@ -182,6 +184,14 @@ export function SessionFilesSection() {
                   description: `${inventory.length.toLocaleString()} inventory records, ${status.length.toLocaleString()} status records`,
                 });
               }}
+            />
+            <R2FetchButton
+              filename="dim_product.csv"
+              label=""
+              onFetchedFile={handleProductSelect}
+              disabled={loadingFile !== null}
+              noWrapper
+              inlineLabel="Download Product Data from Snowflake"
             />
           </div>
         </div>

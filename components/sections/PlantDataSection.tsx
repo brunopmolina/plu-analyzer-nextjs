@@ -10,6 +10,7 @@ import { parsePlantCSV } from '@/lib/csv-parser';
 import { REQUIRED_COLUMNS } from '@/lib/constants';
 import { Trash2, Store } from 'lucide-react';
 import { StoreDescriptionsDialog } from '@/components/StoreDescriptionsDialog';
+import { downloadRecordsAsCSV } from '@/lib/export';
 import { toast } from 'sonner';
 
 export function PlantDataSection() {
@@ -77,6 +78,9 @@ export function PlantDataSection() {
           status={state.plantStatus}
           onFileSelect={handleFileSelect}
           onDismissStatus={() => dismissFileStatus('plant')}
+          onDownload={() => {
+            if (state.plantData) downloadRecordsAsCSV(state.plantData, state.plantStatus.fileName ?? 'v_dim_plant.csv');
+          }}
           isLoading={isLoading}
           helperText="You can Export from Snowflake"
         />

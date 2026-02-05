@@ -11,6 +11,7 @@ import { parsePlantCSV, parseInventoryCSV, parseStatusCSV, parseProductCSV } fro
 import { REQUIRED_COLUMNS } from '@/lib/constants';
 import { FolderOpen, Trash2, RefreshCw } from 'lucide-react';
 import { StoreDescriptionsDialog } from '@/components/StoreDescriptionsDialog';
+import { downloadRecordsAsCSV } from '@/lib/export';
 import { toast } from 'sonner';
 
 export function MobileFilesSection() {
@@ -156,6 +157,9 @@ export function MobileFilesSection() {
             status={state.plantStatus}
             onFileSelect={handlePlantSelect}
             onDismissStatus={() => dismissFileStatus('plant')}
+            onDownload={() => {
+              if (state.plantData) downloadRecordsAsCSV(state.plantData, state.plantStatus.fileName ?? 'v_dim_plant.csv');
+            }}
             isLoading={loadingFile === 'plant'}
             helperText="You can Export from Snowflake"
           />
@@ -213,6 +217,9 @@ export function MobileFilesSection() {
               status={state.inventoryStatus}
               onFileSelect={handleInventorySelect}
               onDismissStatus={() => dismissFileStatus('inventory')}
+              onDownload={() => {
+                if (state.inventoryData) downloadRecordsAsCSV(state.inventoryData, state.inventoryStatus.fileName ?? 'inventory.csv');
+              }}
               isLoading={loadingFile === 'inventory'}
               helperText="You can Export from CT"
             />
@@ -221,6 +228,9 @@ export function MobileFilesSection() {
               status={state.statusStatus}
               onFileSelect={handleStatusSelect}
               onDismissStatus={() => dismissFileStatus('status')}
+              onDownload={() => {
+                if (state.statusData) downloadRecordsAsCSV(state.statusData, state.statusStatus.fileName ?? 'status.csv');
+              }}
               isLoading={loadingFile === 'status'}
               helperText="You can Export from CT"
             />
@@ -229,6 +239,9 @@ export function MobileFilesSection() {
               status={state.productStatus}
               onFileSelect={handleProductSelect}
               onDismissStatus={() => dismissFileStatus('product')}
+              onDownload={() => {
+                if (state.productData) downloadRecordsAsCSV(state.productData, state.productStatus.fileName ?? 'v_dim_product.csv');
+              }}
               isLoading={loadingFile === 'product'}
               helperText="You can Export from Snowflake"
             />
