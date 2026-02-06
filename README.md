@@ -55,6 +55,7 @@ Only SKUs that are exactly 4 digits are analyzed (valid PLU format).
 ### Recommendation Rules
 
 - **Publish**: Product is NOT published + status is NOT Inactive/Discontinued + ≥90% inventory coverage
+- **Publish - TEMP**: Product is NOT published + status IS Inactive/Discontinued + ≥50% inventory coverage (temporary publish to sell through remaining stock; will naturally qualify for unpublish once inventory drops below threshold)
 - **Unpublish**: Product IS published + status IS Inactive/Discontinued + ≥50% out of stock
 - **No Action**: All other cases
 
